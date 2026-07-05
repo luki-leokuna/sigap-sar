@@ -1,91 +1,114 @@
 <x-layouts.app title="Dashboard Admin TIMSAR">
 
-    <section class="space-y-4">
+    <section class="space-y-6 mx-auto max-w-7xl px-2 sm:px-4 py-4">
         
-        {{-- ── LIGHT COMMAND HEADER ── --}}
-        <div class="flex flex-col justify-between gap-3 md:flex-row md:items-center pb-3 border-b border-slate-200">
+        {{-- ── TACTICAL COMMAND HEADER ── --}}
+        <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center pb-5 border-b border-slate-200/80">
             <div>
-                <div class="flex items-center gap-1.5">
-                    <span class="h-2.5 w-2.5 rounded-full bg-red-600 animate-pulse"></span>
-                    <p class="text-xs font-bold uppercase tracking-wider text-red-600">Pusat Kendali Operasi (Pusko)</p>
+                <div class="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-xs font-black uppercase tracking-wider text-red-700 border border-red-200 shadow-sm">
+                    <span class="h-2 w-2 rounded-full bg-red-500 animate-ping"></span>
+                    <span>PUSAT KENDALI OPERASI (PUSKO) v3.0</span>
                 </div>
-                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 mt-0.5">Dashboard Koordinasi Realtime</h1>
-                <p class="text-sm text-slate-500 mt-0.5">Sistem monitoring laporan darurat dan tracking pergerakan anggota lapangan secara langsung.</p>
+                <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 mt-2">Dashboard Komando Realtime</h1>
+                <p class="text-xs sm:text-sm text-slate-600 font-semibold mt-1">Sistem monitoring laporan darurat dan tracking koordinat pergerakan tim rescue secara langsung.</p>
             </div>
-            <div class="flex items-center gap-2">
-                <a href="{{ route('admin.reports.index') }}" class="rounded-lg border border-slate-300 bg-white hover:bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-700 shadow-sm transition-colors">Riwayat Laporan</a>
-                <button id="adminNotificationButton" type="button" class="rounded-lg border border-slate-300 bg-white hover:bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-700 shadow-sm transition-colors">
-                    Aktifkan suara alarm
+            <div class="flex flex-wrap items-center gap-2.5">
+                <a href="{{ route('admin.reports.index') }}" class="rounded-xl border border-slate-300 bg-white hover:border-orange-500 hover:text-orange-600 px-4 py-2.5 text-xs font-black text-slate-700 shadow-sm transition-all">
+                    📋 Riwayat Laporan
+                </a>
+                <button id="adminNotificationButton" type="button" class="rounded-xl border border-slate-300 bg-white hover:border-orange-500 hover:text-orange-600 px-4 py-2.5 text-xs font-black text-slate-700 shadow-sm transition-all flex items-center gap-2">
+                    <span>🔔 Aktifkan Suara Alarm</span>
                 </button>
-                <button id="stopAdminAlarmButton" type="button" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-xs font-bold text-red-700 shadow-sm transition-colors hover:bg-red-100">
-                    Hentikan alarm
+                <button id="stopAdminAlarmButton" type="button" class="hidden rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-xs font-black text-red-700 shadow-md shadow-red-500/10 transition-all hover:bg-red-600 hover:text-white animate-bounce">
+                    🚨 Hentikan Alarm
                 </button>
             </div>
         </div>
 
-        {{-- ── DIGITAL STATS BAR ── --}}
-        <div class="grid gap-3 grid-cols-2 md:grid-cols-4">
-            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm flex flex-col justify-between">
-                <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Laporan Baru</span>
-                    <p class="text-3xl sm:text-4xl font-black text-red-600 mt-1 leading-none">{{ $stats['new'] }}</p>
+        {{-- ── DIGITAL STATS BAR (Tactical HUD Cards) ── --}}
+        <div class="grid gap-4 grid-cols-2 lg:grid-cols-4">
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xl relative overflow-hidden group hover:border-red-500/50 transition-all">
+                <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-red-50 blur-2xl group-hover:bg-red-100 transition-all"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Laporan Baru</span>
+                    <span class="grid h-8 w-8 place-items-center rounded-xl bg-red-50 text-red-600 font-black text-xs border border-red-200 shadow-sm">🚨</span>
                 </div>
+                <p class="text-3xl sm:text-5xl font-black text-slate-900 mt-2 font-mono tracking-tight">{{ $stats['new'] }}</p>
+                <span class="mt-2 inline-block text-[10px] font-bold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">Butuh Tindakan Segera</span>
             </div>
-            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm flex flex-col justify-between">
-                <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Sedang Ditangani</span>
-                    <p class="text-3xl sm:text-4xl font-black text-amber-600 mt-1 leading-none">{{ $stats['active'] }}</p>
+
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xl relative overflow-hidden group hover:border-amber-500/50 transition-all">
+                <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-amber-50 blur-2xl group-hover:bg-amber-100 transition-all"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Sedang Ditangani</span>
+                    <span class="grid h-8 w-8 place-items-center rounded-xl bg-amber-50 text-amber-600 font-black text-xs border border-amber-200 shadow-sm">⚡</span>
                 </div>
+                <p class="text-3xl sm:text-5xl font-black text-slate-900 mt-2 font-mono tracking-tight">{{ $stats['active'] }}</p>
+                <span class="mt-2 inline-block text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">Operasi Berjalan</span>
             </div>
-            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm flex flex-col justify-between">
-                <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Anggota Online</span>
-                    <p class="text-3xl sm:text-4xl font-black text-emerald-600 mt-1 leading-none">{{ $stats['members_online'] }}</p>
+
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xl relative overflow-hidden group hover:border-emerald-500/50 transition-all">
+                <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-emerald-50 blur-2xl group-hover:bg-emerald-100 transition-all"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Anggota Online</span>
+                    <span class="grid h-8 w-8 place-items-center rounded-xl bg-emerald-50 text-emerald-600 font-black text-xs border border-emerald-200 shadow-sm">📡</span>
                 </div>
+                <p class="text-3xl sm:text-5xl font-black text-slate-900 mt-2 font-mono tracking-tight">{{ $stats['members_online'] }}</p>
+                <span class="mt-2 inline-block text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md flex items-center gap-1.5 w-max"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Unit Siaga</span>
             </div>
-            <a href="{{ route('admin.reports.index', ['status' => 'completed']) }}" class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm flex flex-col justify-between transition-colors hover:border-slate-300 hover:bg-slate-50">
-                <div>
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Selesai Hari Ini</span>
-                    <p class="text-3xl sm:text-4xl font-black text-slate-700 mt-1 leading-none">{{ $stats['completed_today'] }}</p>
+
+            <a href="{{ route('admin.reports.index', ['status' => 'completed']) }}" class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xl relative overflow-hidden group hover:border-blue-500/50 transition-all block">
+                <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-blue-50 blur-2xl group-hover:bg-blue-100 transition-all"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Selesai Hari Ini</span>
+                    <span class="grid h-8 w-8 place-items-center rounded-xl bg-blue-50 text-blue-600 font-black text-xs border border-blue-200 shadow-sm">🛡️</span>
                 </div>
+                <p class="text-3xl sm:text-5xl font-black text-slate-900 mt-2 font-mono tracking-tight">{{ $stats['completed_today'] }}</p>
+                <span class="mt-2 inline-block text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md">Misi Berhasil &rarr;</span>
             </a>
         </div>
 
-        {{-- ── MAIN PANEL: MAP & LISTS ── --}}
-        <div class="grid gap-4 lg:grid-cols-[1fr_380px]">
+        {{-- ── MAIN PANEL: MAP & TACTICAL LISTS ── --}}
+        <div class="grid gap-6 lg:grid-cols-[1fr_400px]">
             
-            {{-- Peta Operasional --}}
-            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col">
-                <div class="border-b border-slate-200 bg-slate-50 px-4 py-3 flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold text-slate-800">Peta Taktis Operasional</h2>
-                        <p id="mapMeta" class="text-xs text-slate-500 mt-0.5">Memuat data peta...</p>
+            {{-- Peta Operasional Taktis --}}
+            <div class="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-xl flex flex-col">
+                <div class="border-b border-slate-200/80 bg-slate-50 px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="grid h-8 w-8 place-items-center rounded-xl bg-orange-100 text-orange-600 font-black text-sm border border-orange-200 shadow-sm">🛰️</span>
+                        <div>
+                            <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider">Peta Taktis Operasional</h2>
+                            <p id="mapMeta" class="text-xs font-semibold text-slate-500 mt-0.5">Memuat data koordinat satelit...</p>
+                        </div>
                     </div>
-                    <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <div class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full shadow-sm">
+                        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span class="text-[10px] font-black text-emerald-700 uppercase tracking-wider">RADAR LIVE</span>
+                    </div>
                 </div>
-                <div id="adminMap" class="h-[500px] lg:h-[650px] z-10"></div>
+                <div id="adminMap" class="h-[550px] lg:h-[700px] z-10 w-full"></div>
             </div>
 
-            {{-- Sidebar --}}
-            <aside class="space-y-4 flex flex-col justify-between h-full">
+            {{-- Sidebar Komando --}}
+            <aside class="space-y-6 flex flex-col justify-between">
                 
                 {{-- Laporan Aktif --}}
-                <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm flex-1">
-                    <div class="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl flex-1 flex flex-col">
+                    <div class="flex items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
                         <div>
-                            <h2 class="text-sm font-bold text-slate-900">Daftar Laporan Aktif</h2>
-                            <p class="text-xs text-slate-500">Kasus yang butuh penanganan</p>
+                            <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider">Daftar Laporan Aktif</h2>
+                            <p class="text-xs font-semibold text-slate-500">Insiden membutuhkan penanganan</p>
                         </div>
-                        <span id="reportsCount" class="rounded bg-red-100 px-2 py-0.5 text-xs font-extrabold text-red-700">{{ $reports->count() }}</span>
+                        <span id="reportsCount" class="rounded-full bg-red-50 border border-red-200 px-3 py-1 text-xs font-black text-red-700 font-mono shadow-sm">{{ $reports->count() }}</span>
                     </div>
-                    <div id="activeReportsList" class="mt-3 space-y-2.5 max-h-[220px] lg:max-h-[240px] overflow-y-auto pr-1">
+                    <div id="activeReportsList" class="mt-4 space-y-3 max-h-[260px] lg:max-h-[300px] overflow-y-auto pr-1">
                         @forelse($reports as $report)
                             @php
                                 $priorityClass = match ($report->priority) {
-                                    'critical' => 'bg-red-50 text-red-700 border-red-100',
-                                    'high' => 'bg-orange-50 text-orange-700 border-orange-100',
-                                    'medium' => 'bg-amber-50 text-amber-700 border-amber-100',
-                                    default => 'bg-slate-50 text-slate-600 border-slate-100',
+                                    'critical' => 'bg-red-50 text-red-700 border-red-200 animate-pulse',
+                                    'high' => 'bg-orange-50 text-orange-700 border-orange-200',
+                                    'medium' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                    default => 'bg-slate-100 text-slate-700 border-slate-200',
                                 };
                                 $priorityBorder = match ($report->priority) {
                                     'critical' => 'border-l-red-500',
@@ -94,47 +117,60 @@
                                     default => 'border-l-slate-400',
                                 };
                             @endphp
-                            <a href="{{ route('admin.reports.show', $report) }}" class="block rounded border border-slate-200 border-l-4 {{ $priorityBorder }} p-3.5 bg-white hover:bg-slate-50 transition-colors shadow-sm">
+                            <a href="{{ route('admin.reports.show', $report) }}" class="block rounded-2xl border border-slate-200/80 border-l-4 {{ $priorityBorder }} p-4 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 transition-all shadow-sm group">
                                 <div class="flex items-start justify-between gap-2">
                                     <div>
-                                        <p class="font-bold text-slate-900 text-sm sm:text-base leading-tight">{{ $report->incident_type }}</p>
-                                        <p class="text-xs text-slate-500 mt-1 font-mono">{{ $report->tracking_code }} • {{ $report->created_at->diffForHumans() }}</p>
+                                        <p class="font-black text-slate-900 text-sm sm:text-base leading-tight group-hover:text-orange-600 transition-colors">{{ $report->incident_type }}</p>
+                                        <p class="text-[11px] text-slate-500 mt-1 font-mono">{{ $report->tracking_code }} • {{ $report->created_at->diffForHumans() }}</p>
                                     </div>
-                                    <span class="rounded px-2 py-0.5 text-xs font-extrabold uppercase tracking-wide {{ $priorityClass }}">{{ $report->priority }}</span>
+                                    <span class="rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider border {{ $priorityClass }}">{{ $report->priority }}</span>
                                 </div>
-                                <div class="mt-3 flex items-center justify-between text-xs border-t border-slate-100 pt-2 text-slate-600">
-                                    <div>Status: <span class="font-bold text-slate-800">{{ \App\Http\Controllers\PublicTrackingController::statusLabel($report->status) }}</span></div>
-                                    <div>Petugas: <span class="font-bold text-slate-800">{{ $report->assignedMember?->name ?? 'Belum' }}</span></div>
+                                <div class="mt-3 flex items-center justify-between text-xs border-t border-slate-200/80 pt-2.5 text-slate-600">
+                                    <div>Status: <span class="font-black text-slate-800">{{ \App\Http\Controllers\PublicTrackingController::statusLabel($report->status) }}</span></div>
+                                    <div>Petugas: <span class="font-black text-orange-600">{{ $report->assignedMember?->name ?? 'Belum' }}</span></div>
                                 </div>
                             </a>
                         @empty
-                            <p class="rounded bg-slate-50 p-4 text-xs text-slate-500 text-center">Belum ada laporan aktif.</p>
+                            <div class="rounded-2xl border border-slate-200/80 bg-slate-50 p-6 text-center shadow-sm">
+                                <span class="block text-2xl mb-1">✅</span>
+                                <p class="text-xs font-bold text-slate-500">Semua insiden telah terkendali. Belum ada laporan aktif baru.</p>
+                            </div>
                         @endforelse
                     </div>
                 </div>
 
                 {{-- Anggota Lapangan --}}
-                <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm flex-1">
-                    <div class="border-b border-slate-100 pb-3">
-                        <h2 class="text-sm font-bold text-slate-900">Anggota TIMSAR</h2>
-                        <p class="text-xs text-slate-500">Status pelacakan lapangan</p>
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl flex-1 flex flex-col">
+                    <div class="border-b border-slate-200/80 pb-4 flex items-center justify-between">
+                        <div>
+                            <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider">Unit Rescue TIMSAR</h2>
+                            <p class="text-xs font-semibold text-slate-500">Monitoring konektivitas petugas lapangan</p>
+                        </div>
+                        <span class="text-xs font-mono font-bold text-slate-500">{{ $members->count() }} Personel</span>
                     </div>
-                    <div class="mt-3 space-y-2.5 max-h-[300px] lg:max-h-[350px] overflow-y-auto pr-1">
+                    <div class="mt-4 space-y-3 max-h-[280px] lg:max-h-[340px] overflow-y-auto pr-1">
                         @foreach($members as $member)
                             @php
                                 $isOnline = $member->memberLocation?->last_seen_at?->gt(now()->subSeconds(90));
                             @endphp
-                            <div class="rounded border border-slate-200 p-3.5 bg-white hover:bg-slate-50 transition-colors shadow-sm">
+                            <div class="rounded-2xl border border-slate-200/80 p-4 bg-slate-50 hover:bg-slate-100 transition-all shadow-sm">
                                 <div class="flex items-center justify-between gap-2">
-                                    <p class="font-bold text-slate-900 text-sm sm:text-base leading-tight">{{ $member->name }}</p>
-                                    <span class="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-extrabold uppercase tracking-wide {{ $isOnline ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500' }}">
-                                        <span class="w-1.5 h-1.5 rounded-full {{ $isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400' }}"></span>
+                                    <p class="font-black text-slate-900 text-sm sm:text-base leading-tight flex items-center gap-2">
+                                        <span>🧑‍🚒</span>
+                                        <span>{{ $member->name }}</span>
+                                    </p>
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider border {{ $isOnline ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-200 text-slate-600 border-slate-300' }}">
+                                        <span class="w-1.5 h-1.5 rounded-full {{ $isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-500' }}"></span>
                                         {{ $isOnline ? 'Online' : 'Offline' }}
                                     </span>
                                 </div>
-                                <p class="mt-1 text-xs text-slate-500 leading-none">{{ $member->phone }} • <span class="font-mono text-slate-450">{{ $member->memberLocation?->network_type ?? 'offline' }}</span></p>
-                                <p class="mt-2 text-xs text-slate-400">
-                                    Aktif: {{ $member->memberLocation?->last_seen_at?->diffForHumans() ?? '-' }}
+                                <div class="mt-2 flex items-center justify-between text-xs text-slate-500 font-mono">
+                                    <span>{{ $member->phone }}</span>
+                                    <span class="bg-slate-200 px-2 py-0.5 rounded text-[10px] uppercase text-slate-700">{{ $member->memberLocation?->network_type ?? 'offline' }}</span>
+                                </div>
+                                <p class="mt-2 text-[11px] font-semibold text-slate-500 border-t border-slate-200/80 pt-2 flex items-center justify-between">
+                                    <span>Posisi Terakhir:</span>
+                                    <span class="text-slate-600 font-mono">{{ $member->memberLocation?->last_seen_at?->diffForHumans() ?? '-' }}</span>
                                 </p>
                             </div>
                         @endforeach
@@ -212,7 +248,7 @@
                 if (priority === 'critical') return 'bg-red-100 text-red-700';
                 if (priority === 'high') return 'bg-orange-100 text-orange-700';
                 if (priority === 'medium') return 'bg-amber-100 text-amber-700';
-                return 'bg-slate-100 text-slate-650';
+                return 'bg-slate-100 text-slate-700';
             }
 
             function formatReportTime(value) {
@@ -245,7 +281,7 @@
                         critical: 'bg-red-50 text-red-700 border-red-100',
                         high: 'bg-orange-50 text-orange-700 border-orange-100',
                         medium: 'bg-amber-50 text-amber-700 border-amber-100',
-                    }[report.priority] || 'bg-slate-50 text-slate-650 border-slate-100';
+                    }[report.priority] || 'bg-slate-50 text-slate-700 border-slate-100';
 
                     return `
                         <a href="${report.url}" data-report-id="${report.id}" data-report-alarm-stop class="block rounded border border-slate-200 border-l-4 ${priorityBorder} p-3.5 bg-white hover:bg-slate-50 transition-colors shadow-sm">

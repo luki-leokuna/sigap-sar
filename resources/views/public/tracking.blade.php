@@ -1,111 +1,121 @@
 <x-layouts.app title="Lacak {{ $report->tracking_code }}">
-    <section class="space-y-4">
-        <div id="statusPanel" class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div class="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-start lg:justify-between">
-                <div class="min-w-0">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span id="statusBadge" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black uppercase text-slate-700">Memuat status</span>
-                        <span id="liveIndicator" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500">
-                            <span class="h-2 w-2 rounded-full bg-amber-500"></span>
-                            Menghubungkan
+    <section class="space-y-6 mx-auto max-w-7xl px-2 sm:px-4 py-4">
+        {{-- Status Header Panel --}}
+        <div id="statusPanel" class="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-xl">
+            <div class="flex flex-col gap-6 p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between border-b border-slate-200/80">
+                <div class="min-w-0 space-y-3">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <span id="statusBadge" class="rounded-full bg-slate-100 px-3.5 py-1 text-xs font-black uppercase text-slate-700 border border-slate-300">Memuat status</span>
+                        <span id="liveIndicator" class="inline-flex items-center gap-2 text-xs font-bold text-emerald-600">
+                            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
+                            Menghubungkan Sinyal
                         </span>
                     </div>
-                    <h1 class="mt-3 text-xl font-black leading-tight text-slate-950 sm:text-2xl">{{ $report->incident_type }}</h1>
-                    <p id="statusMessage" class="mt-1 max-w-3xl text-sm font-semibold leading-relaxed text-slate-600">Memeriksa perkembangan laporan Anda...</p>
+                    <h1 class="text-2xl sm:text-4xl font-black leading-tight text-slate-900 tracking-tight">{{ $report->incident_type }}</h1>
+                    <p id="statusMessage" class="max-w-3xl text-sm font-semibold leading-relaxed text-slate-600">Memeriksa perkembangan laporan Anda pada jaringan komando SAR...</p>
                 </div>
 
-                <div class="shrink-0 rounded-lg bg-slate-50 px-3 py-2.5">
-                    <p class="text-[10px] font-black uppercase text-slate-500">Kode pelacakan</p>
-                    <div class="mt-0.5 flex items-center gap-2">
-                        <p class="font-mono text-sm font-black text-slate-900 sm:text-base">{{ $report->tracking_code }}</p>
-                        <button id="copyTrackingButton" type="button" class="rounded-md border border-slate-300 bg-white px-2 py-1 text-[11px] font-black text-slate-700">Salin</button>
+                <div class="shrink-0 rounded-2xl border border-slate-200/80 bg-slate-50 p-4 shadow-sm flex items-center justify-between lg:flex-col lg:items-end gap-2">
+                    <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Kode Tracking Operasi</p>
+                    <div class="flex items-center gap-3">
+                        <p class="font-mono text-base sm:text-lg font-black text-orange-600 tracking-wider">{{ $report->tracking_code }}</p>
+                        <button id="copyTrackingButton" type="button" class="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-black text-slate-700 hover:border-orange-500 hover:text-orange-600 transition-all shadow-sm">Salin</button>
                     </div>
                 </div>
             </div>
 
-            <div class="border-t border-slate-100 px-3 py-4 sm:px-5">
-                <div class="grid grid-cols-6 gap-1" aria-label="Tahapan penanganan laporan">
+            {{-- Visual Timeline Steps --}}
+            <div class="px-4 py-6 sm:px-8 bg-slate-50/80 border-t border-slate-200/80">
+                <div class="grid grid-cols-6 gap-2" aria-label="Tahapan penanganan laporan">
                     @foreach(['Diterima', 'Petugas', 'Menuju', 'Tiba', 'Ditangani', 'Selesai'] as $index => $step)
-                        <div class="min-w-0 text-center">
-                            <span data-status-step="{{ $index }}" class="mx-auto grid h-7 w-7 place-items-center rounded-full border-2 border-slate-200 bg-white text-[10px] font-black text-slate-400">{{ $index + 1 }}</span>
-                            <p data-status-step-label="{{ $index }}" class="mt-1 truncate text-[9px] font-bold text-slate-400 sm:text-[11px]">{{ $step }}</p>
+                        <div class="min-w-0 text-center group">
+                            <span data-status-step="{{ $index }}" class="mx-auto grid h-8 w-8 place-items-center rounded-xl border-2 border-slate-300 bg-white text-xs font-black text-slate-500 shadow-sm transition-all">{{ $index + 1 }}</span>
+                            <p data-status-step-label="{{ $index }}" class="mt-2 truncate text-[10px] font-bold text-slate-500 sm:text-xs transition-all">{{ $step }}</p>
                         </div>
                     @endforeach
                 </div>
             </div>
         </div>
 
-        <div id="closurePanel" class="hidden rounded-xl border p-4 shadow-sm" role="status">
-            <p id="closureTitle" class="font-black"></p>
-            <p id="closureText" class="mt-1 text-sm font-semibold"></p>
+        <div id="closurePanel" class="hidden rounded-2xl border p-5 shadow-xl backdrop-blur-xl" role="status">
+            <p id="closureTitle" class="font-black text-lg"></p>
+            <p id="closureText" class="mt-1 text-sm font-semibold opacity-90"></p>
         </div>
 
-        <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
-            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-                <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+        {{-- Map & Rescue Team Detail Grid --}}
+        <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+            <div class="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-xl flex flex-col">
+                <div class="flex items-center justify-between gap-3 border-b border-slate-200/80 px-6 py-4">
                     <div>
-                        <h2 class="text-sm font-black text-slate-900">Posisi penanganan</h2>
-                        <p id="mapStatusText" class="text-xs font-semibold text-slate-500">Menunggu posisi petugas.</p>
+                        <h2 class="text-base font-black text-slate-900">Radar Pemantauan Taktis</h2>
+                        <p id="mapStatusText" class="text-xs font-semibold text-slate-500">Menunggu transmisi posisi petugas rescue.</p>
                     </div>
-                    <button id="focusMapButton" type="button" class="shrink-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-black text-slate-700">Pusatkan</button>
+                    <button id="focusMapButton" type="button" class="shrink-0 rounded-xl border border-slate-300 bg-slate-50 px-4 py-2 text-xs font-black text-slate-700 hover:border-orange-500 hover:text-orange-600 transition-all shadow-sm">Pusatkan Radar</button>
                 </div>
-                <div class="relative">
-                    <div id="map" class="h-[52vh] min-h-[360px] max-h-[620px]"></div>
-                    <div class="pointer-events-none absolute bottom-3 left-3 z-[500] rounded-lg bg-white/95 px-3 py-2 text-[10px] font-black text-slate-600 shadow-lg backdrop-blur">
-                        <span class="mr-3 inline-flex items-center gap-1"><span class="h-1.5 w-4 rounded-full bg-blue-600"></span>Dilewati</span>
-                        <span class="inline-flex items-center gap-1"><span class="h-1.5 w-4 rounded-full bg-red-500"></span>Rute petugas</span>
+                <div class="relative flex-1">
+                    <div id="map" class="h-[55vh] min-h-[400px] max-h-[680px] w-full"></div>
+                    <div class="pointer-events-none absolute bottom-4 left-4 z-[500] rounded-2xl border border-slate-200/80 bg-white/95 px-4 py-2.5 text-xs font-extrabold text-slate-700 shadow-lg flex items-center gap-4">
+                        <span class="inline-flex items-center gap-2"><span class="h-2 w-5 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50"></span>Jalur Dilewati</span>
+                        <span class="inline-flex items-center gap-2"><span class="h-2 w-5 rounded-full bg-orange-500 shadow-sm shadow-orange-500/50"></span>Rute Operasi</span>
                     </div>
                 </div>
             </div>
 
-            <aside class="space-y-4">
-                <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <div class="flex items-start justify-between gap-3">
+            <aside class="space-y-6">
+                {{-- Rescue Member Card --}}
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl space-y-5">
+                    <div class="flex items-start justify-between gap-3 pb-4 border-b border-slate-200/80">
                         <div>
-                            <p class="text-[11px] font-black uppercase text-slate-500">Petugas yang membantu</p>
-                            <p id="memberName" class="mt-1 text-lg font-black text-slate-950">Menunggu penugasan</p>
-                            <p id="memberMeta" class="mt-0.5 text-xs font-semibold text-slate-500">Posko sedang memproses laporan.</p>
+                            <span class="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200">Unit Ditugaskan</span>
+                            <p id="memberName" class="mt-2 text-xl font-black text-slate-900">Menunggu penugasan</p>
+                            <p id="memberMeta" class="mt-1 text-xs font-semibold text-slate-500">Posko komando sedang memproses laporan.</p>
                         </div>
-                        <span id="memberOnlineBadge" class="hidden rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase text-emerald-700">Online</span>
+                        <span id="memberOnlineBadge" class="hidden rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-[10px] font-black uppercase text-emerald-700">Online</span>
                     </div>
 
-                    <div class="mt-4 grid grid-cols-2 gap-2">
-                        <div class="rounded-lg bg-slate-50 p-3">
-                            <p class="text-[10px] font-black uppercase text-slate-500">Jarak tersisa</p>
-                            <p id="distanceText" class="mt-1 text-lg font-black text-slate-900">-</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="rounded-2xl border border-slate-200/80 bg-slate-50 p-4 shadow-sm">
+                            <p class="text-[10px] font-black uppercase tracking-wider text-slate-500">Jarak Tersisa</p>
+                            <p id="distanceText" class="mt-1 text-xl font-black text-orange-600 font-mono">-</p>
                         </div>
-                        <div class="rounded-lg bg-slate-50 p-3">
-                            <p class="text-[10px] font-black uppercase text-slate-500">Perkiraan tiba</p>
-                            <p id="durationText" class="mt-1 text-lg font-black text-slate-900">-</p>
-                        </div>
-                    </div>
-
-                    <a id="memberCallLink" href="#" class="mt-3 hidden w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-3 text-sm font-black text-white">Hubungi petugas</a>
-                </div>
-
-                <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <p class="text-[11px] font-black uppercase text-slate-500">Laporan Anda</p>
-                    <p class="mt-2 text-sm font-semibold leading-relaxed text-slate-700">{{ $report->description }}</p>
-                    <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                            <p class="font-bold text-slate-400">Dilaporkan</p>
-                            <p class="mt-0.5 font-black text-slate-700">{{ $report->created_at?->timezone('Asia/Makassar')->format('d M Y, H.i') }} WITA</p>
-                        </div>
-                        <div>
-                            <p class="font-bold text-slate-400">Lokasi</p>
-                            <p class="mt-0.5 font-black text-slate-700">Titik GPS tersimpan</p>
+                        <div class="rounded-2xl border border-slate-200/80 bg-slate-50 p-4 shadow-sm">
+                            <p class="text-[10px] font-black uppercase tracking-wider text-slate-500">Estimasi Tiba</p>
+                            <p id="durationText" class="mt-1 text-xl font-black text-emerald-600 font-mono">-</p>
                         </div>
                     </div>
+
+                    <a id="memberCallLink" href="#" class="hidden w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-3.5 text-sm font-black text-white shadow-md shadow-emerald-500/20 hover:brightness-110 transition-all">
+                        <span>📞 Hubungi Petugas Lapangan</span>
+                    </a>
                 </div>
 
-                <div class="grid grid-cols-2 gap-2">
-                    <button id="shareTrackingButton" type="button" class="rounded-lg bg-slate-900 px-3 py-3 text-sm font-black text-white">Bagikan status</button>
-                    <a href="{{ route('public.report') }}" class="rounded-lg border border-slate-300 bg-white px-3 py-3 text-center text-sm font-black text-slate-700">Buat laporan lain</a>
+                {{-- Report Detail Card --}}
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl space-y-4">
+                    <p class="text-xs font-black uppercase tracking-wider text-slate-500 border-b border-slate-200/80 pb-3">Arsip Laporan Darurat</p>
+                    <p class="text-sm font-semibold leading-relaxed text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-200/80 shadow-sm">{{ $report->description }}</p>
+                    <div class="grid grid-cols-2 gap-3 text-xs pt-1">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80 shadow-sm">
+                            <p class="font-bold text-slate-500 text-[10px] uppercase">Waktu Lapor</p>
+                            <p class="mt-1 font-black text-slate-900">{{ $report->created_at?->timezone('Asia/Makassar')->format('d M Y, H.i') }} WITA</p>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80 shadow-sm">
+                            <p class="font-bold text-slate-500 text-[10px] uppercase">Koordinat GPS</p>
+                            <p class="mt-1 font-black text-emerald-600">Terkunci Presisi</p>
+                        </div>
+                    </div>
                 </div>
 
-                <details class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <summary class="cursor-pointer text-sm font-black text-slate-900">Perjalanan petugas</summary>
-                    <p id="trailText" class="mt-2 text-sm font-semibold text-slate-600">Belum ada perjalanan terekam.</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="shareTrackingButton" type="button" class="rounded-2xl border border-slate-300 bg-white px-4 py-3.5 text-xs font-black text-slate-700 hover:border-orange-500 hover:bg-orange-50 hover:text-orange-600 transition-all shadow-sm">Bagikan Status</button>
+                    <a href="{{ route('public.report') }}" class="rounded-2xl bg-gradient-to-r from-orange-600 to-red-600 px-4 py-3.5 text-center text-xs font-black text-white hover:brightness-110 transition-all shadow-md shadow-orange-500/20">Buat Laporan Lain</a>
+                </div>
+
+                <details class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xl group">
+                    <summary class="cursor-pointer text-xs font-black text-slate-700 group-open:text-orange-600 transition-colors list-none flex items-center justify-between">
+                        <span>🛰️ Log Perjalanan Petugas Rescue</span>
+                        <span class="text-xs">▼</span>
+                    </summary>
+                    <p id="trailText" class="mt-3 text-xs font-semibold text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 leading-relaxed shadow-sm">Belum ada perjalanan terekam oleh satelit komando.</p>
                 </details>
             </aside>
         </div>

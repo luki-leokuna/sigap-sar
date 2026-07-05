@@ -1,0 +1,9 @@
+/node_modules
+/vendor
+/.git
+/.gemini
+/.env
+/storage/*.key
+/mobile_member
+/nada dring
+*.apk

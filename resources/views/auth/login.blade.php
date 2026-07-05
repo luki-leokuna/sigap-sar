@@ -1,170 +1,164 @@
-<x-layouts.app title="Login TIMSAR">
+<x-layouts.app title="Login Posko SIGAP-SAR">
 
     @push('scripts')
         <style>
-            /* ── Animations ── */
-            @keyframes fadeUp {
-                from { opacity: 0; transform: translateY(12px); }
-                to   { opacity: 1; transform: translateY(0); }
+            @keyframes pulseGlow {
+                0%, 100% { opacity: 0.4; transform: scale(1); }
+                50% { opacity: 0.8; transform: scale(1.05); }
             }
-            .fade-up { animation: fadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
-
-            /* ── Form Inputs ── */
-            .form-input-group {
-                position: relative;
-            }
-            .form-input-icon {
-                position: absolute;
-                left: 0.875rem;
-                top: 50%;
-                transform: translateY(-50%);
-                color: #94a3b8;
-                pointer-events: none;
-                transition: color 0.15s ease;
-            }
-            .form-input {
+            .animate-pulse-glow { animation: pulseGlow 4s ease-in-out infinite; }
+            
+            .form-input-tactical {
                 width: 100%;
-                padding: 0.625rem 0.75rem 0.625rem 2.25rem;
-                border-radius: 0.5rem;
+                padding: 0.75rem 1rem 0.75rem 2.75rem;
+                border-radius: 0.75rem;
                 border: 1px solid #cbd5e1;
                 font-size: 0.875rem;
-                font-weight: 500;
-                color: #1e293b;
-                background: #fff;
-                transition: all 0.15s ease;
+                font-weight: 600;
+                color: #0f172a;
+                background: #ffffff;
+                box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+                transition: all 0.2s ease;
                 outline: none;
             }
-            .form-input:focus {
-                border-color: #dc2626;
-                box-shadow: 0 0 0 2.5px rgba(220, 38, 38, 0.08);
+            .form-input-tactical:focus {
+                border-color: #f97316;
+                box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+                background: #ffffff;
             }
-            .form-input:focus + .form-input-icon {
-                color: #dc2626;
+            .form-input-tactical:focus + .form-icon {
+                color: #f97316;
             }
-            .form-label {
-                display: block;
-                font-size: 0.75rem;
-                font-weight: 700;
-                color: #475569;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                margin-bottom: 0.375rem;
-            }
-
-            /* ── Demo Buttons ── */
-            .demo-btn {
-                cursor: pointer;
-                transition: all 0.15s ease;
-                border: 1px solid #e2e8f0;
-                background: #f8fafc;
-            }
-            .demo-btn:hover {
-                border-color: #dc2626;
-                color: #dc2626;
-                background: #fef2f2;
+            .form-icon {
+                position: absolute;
+                left: 1rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #64748b;
+                pointer-events: none;
+                transition: color 0.2s ease;
             }
         </style>
     @endpush
 
-    <div class="mx-auto max-w-md px-2 sm:px-0 py-8 sm:py-12 fade-up">
-        
-        <form 
-            method="POST" 
-            action="{{ route('login.store') }}" 
-            class="rounded-xl border border-slate-200 bg-white p-6 shadow-md"
-            id="loginForm"
-        >
-            @csrf
+    <div class="mx-auto max-w-6xl px-4 py-8 sm:py-16">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
-            {{-- Header --}}
-            <div class="text-center mb-6">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-red-600 font-black text-white text-sm shadow-sm mb-2.5">TS</span>
-                <h1 class="text-lg font-extrabold text-slate-900">Masuk Posko TIMSAR</h1>
-                <p class="text-xs text-slate-400 mt-0.5">Khusus admin dan anggota lapangan</p>
-            </div>
+            {{-- Left Column: Tactical Hero Portal --}}
+            <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 rounded-full bg-orange-50 border border-orange-200 px-3.5 py-1.5 text-xs font-black text-orange-700 shadow-sm">
+                    <span class="h-2 w-2 rounded-full bg-orange-500 animate-ping"></span>
+                    <span>SISTEM KOMANDO TANGGAP DARURAT v3.0</span>
+                </div>
+                
+                <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 leading-tight">
+                    Pusat Kendali & <br class="hidden sm:inline">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-amber-600 to-red-600">Operasi Rescue SAR</span>
+                </h1>
+                
+                <p class="text-sm sm:text-base text-slate-600 font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                    Platform navigasi taktis terintegrasi untuk pemantauan koordinat anggota rescue secara real-time, pengiriman tim tanggap darurat, dan analisis lokasi kejadian insiden.
+                </p>
 
-            <div class="space-y-4">
-                {{-- Email --}}
-                <div>
-                    <label class="form-label" for="email">Email</label>
-                    <div class="form-input-group">
-                        <input 
-                            id="email"
-                            name="email" 
-                            type="email"
-                            value="{{ old('email', 'admin@timsar.test') }}" 
-                            placeholder="nama@timsar.test"
-                            class="form-input" 
-                            required
-                        >
-                        <svg class="form-input-icon h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                        </svg>
+                {{-- Tactical Live Stats Grid --}}
+                <div class="grid grid-cols-3 gap-3 sm:gap-4 pt-4 max-w-lg mx-auto lg:mx-0">
+                    <div class="rounded-2xl bg-white/90 border border-slate-200/80 p-4 shadow-lg backdrop-blur-md">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Status Sinyal</div>
+                        <div class="text-lg sm:text-2xl font-black text-emerald-600 flex items-center justify-center lg:justify-start gap-1.5">
+                            <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>ONLINE</span>
+                        </div>
+                    </div>
+                    <div class="rounded-2xl bg-white/90 border border-slate-200/80 p-4 shadow-lg backdrop-blur-md">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Peta Komando</div>
+                        <div class="text-lg sm:text-2xl font-black text-orange-600">CARTO-V</div>
+                    </div>
+                    <div class="rounded-2xl bg-white/90 border border-slate-200/80 p-4 shadow-lg backdrop-blur-md">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Keamanan</div>
+                        <div class="text-lg sm:text-2xl font-black text-amber-600">ENCRYPTED</div>
                     </div>
                 </div>
+            </div>
 
-                {{-- Password --}}
-                <div>
-                    <label class="form-label" for="password">Password</label>
-                    <div class="form-input-group">
-                        <input 
-                            id="password"
-                            name="password" 
-                            type="password"
-                            value="password" 
-                            placeholder="Password Anda…"
-                            class="form-input" 
-                            required
-                        >
-                        <svg class="form-input-icon h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-                        </svg>
+            {{-- Right Column: Glassmorphic Login Card --}}
+            <div class="lg:col-span-5">
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                    
+                    {{-- Decorative Top Glow --}}
+                    <div class="absolute -top-24 -right-24 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
+                    
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-200/80">
+                        <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-orange-600 via-amber-600 to-red-600 text-lg font-black text-white shadow-md shadow-orange-500/20">SG</span>
+                        <div>
+                            <h2 class="text-xl font-black text-slate-900">Otorisasi Posko</h2>
+                            <p class="text-xs text-slate-500 font-semibold">Silakan masukkan kredensial akses komando</p>
+                        </div>
                     </div>
-                </div>
 
-                {{-- Submit button --}}
-                <button type="submit" id="loginBtn" class="w-full rounded-lg bg-red-600 py-2.5 text-sm font-bold text-white shadow hover:bg-red-700 active:translate-y-px transition-all">
-                    Masuk
-                </button>
+                    <form 
+                        method="POST" 
+                        action="{{ route('login.store') }}" 
+                        class="space-y-5"
+                        id="loginForm"
+                    >
+                        @csrf
+                        
+                        {{-- Email --}}
+                        <div>
+                            <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-2" for="email">ID / Email Petugas</label>
+                            <div class="relative">
+                                <input 
+                                    id="email"
+                                    name="email" 
+                                    type="email"
+                                    value="{{ old('email') }}" 
+                                    placeholder="nama@timsar.test"
+                                    class="form-input-tactical" 
+                                    required
+                                >
+                                <svg class="form-icon h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        {{-- Password --}}
+                        <div>
+                            <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-2" for="password">Kata Sandi</label>
+                            <div class="relative">
+                                <input 
+                                    id="password"
+                                    name="password" 
+                                    type="password"
+                                    value="" 
+                                    placeholder="••••••••"
+                                    class="form-input-tactical" 
+                                    required
+                                >
+                                <svg class="form-icon h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        {{-- Submit Button --}}
+                        <button type="submit" id="loginBtn" class="w-full rounded-xl bg-gradient-to-r from-orange-600 via-amber-600 to-red-600 py-3 text-sm font-black text-white shadow-md shadow-orange-500/20 hover:brightness-110 active:scale-[0.98] transition-all">
+                            MASUK SISTEM KOMANDO &rarr;
+                        </button>
+                    </form>
+                </div>
             </div>
 
-            {{-- Demo Auto-Fill (Super clean & minimal) --}}
-            <div class="mt-6 pt-4 border-t border-slate-100">
-                <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 text-center mb-2">Gunakan Akun Demo</p>
-                <div class="grid grid-cols-2 gap-2">
-                    <button 
-                        type="button" 
-                        class="demo-btn rounded px-2 py-1.5 text-center text-xs font-bold"
-                        onclick="fillCredentials('admin@timsar.test', 'password')"
-                    >
-                        🔑 Admin
-                    </button>
-                    <button 
-                        type="button" 
-                        class="demo-btn rounded px-2 py-1.5 text-center text-xs font-bold"
-                        onclick="fillCredentials('andi@timsar.test', 'password')"
-                    >
-                        🔑 Anggota
-                    </button>
-                </div>
-            </div>
-
-        </form>
+        </div>
     </div>
 
     @push('scripts')
     <script>
-        function fillCredentials(email, password) {
-            document.getElementById('email').value = email;
-            document.getElementById('password').value = password;
-            document.getElementById('email').focus();
-        }
-
         document.getElementById('loginForm').addEventListener('submit', () => {
             const btn = document.getElementById('loginBtn');
             btn.disabled = true;
-            btn.innerHTML = 'Memproses masuk…';
-            btn.className = 'w-full rounded-lg bg-slate-400 py-2.5 text-sm font-bold text-white cursor-not-allowed';
+            btn.innerHTML = 'OTENTIKASI BERJALAN...';
+            btn.className = 'w-full rounded-xl bg-slate-200 py-3 text-sm font-black text-slate-500 cursor-not-allowed border border-slate-300 shadow-none';
         });
     </script>
     @endpush

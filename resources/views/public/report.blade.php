@@ -209,179 +209,211 @@
         </style>
     @endpush
 
-    <div class="mx-auto max-w-xl px-2 sm:px-0">
+    <div class="mx-auto max-w-6xl px-4 py-6 sm:py-10">
 
-        {{-- ── COMPACT TITLE & DESCRIPTION ── --}}
-        <div class="mb-4 mt-2 fade-up">
-            <span class="inline-flex items-center gap-1 rounded bg-red-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-red-600 border border-red-100">Lapor Darurat TIMSAR</span>
-            <h1 class="mt-1 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-                Formulir Laporan Darurat
-            </h1>
-            <p class="text-xs text-slate-500 mt-0.5">
-                Isi detail kejadian. Sistem akan otomatis melacak GPS perangkat Anda untuk pengiriman bantuan cepat.
-            </p>
+        {{-- Tactical Header --}}
+        <div class="mb-8 text-center sm:text-left flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-slate-200/80">
+            <div>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs font-black uppercase tracking-wider text-red-700 border border-red-200 shadow-sm"><span class="h-2 w-2 rounded-full bg-red-500 animate-ping"></span> EMERGENCY DISPATCH PORTAL</span>
+                <h1 class="mt-2 text-2xl sm:text-4xl font-black tracking-tight text-slate-900">
+                    Formulir Pelaporan Darurat SAR
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-600 font-semibold mt-1">
+                    Sistem akan melacak posisi koordinat GPS perangkat Anda secara presisi untuk pengarahan tim rescue tercepat.
+                </p>
+            </div>
+            <div class="flex items-center justify-center sm:justify-end gap-3">
+                <div class="rounded-2xl bg-white border border-slate-200/80 px-4 py-2 text-center shadow-sm">
+                    <span class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Jalur Prioritas</span>
+                    <span class="text-sm font-black text-orange-600">SIAGA 24 JAM</span>
+                </div>
+            </div>
         </div>
 
-        {{-- ── FORM CARD ── --}}
+        {{-- ── FORM CARD (2-Column Grid on Desktop) ── --}}
         <form
             method="POST"
             action="{{ route('public.report.store') }}"
-            class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden fade-up delay-1"
+            class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
             id="reportForm"
             novalidate
         >
             @csrf
 
-            {{-- Compact Step Header --}}
-            <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-500">
-                <div class="flex items-center gap-1.5" id="step1">
-                    <span class="step-dot bg-slate-200 text-slate-600" id="stepNum1">1</span>
-                    <span>Data Kejadian</span>
-                </div>
-                <div class="h-px bg-slate-200 flex-1 mx-3"></div>
-                <div class="flex items-center gap-1.5" id="step2">
-                    <span class="step-dot bg-slate-200 text-slate-600" id="stepNum2">2</span>
-                    <span>Lokasi</span>
+            {{-- Left Column: GPS & Interactive Map Container (5 Cols) --}}
+            <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-xl space-y-5">
+                    
+                    <div class="flex items-center justify-between border-b border-slate-200/80 pb-4" id="step2">
+                        <div class="flex items-center gap-2.5">
+                            <span class="step-dot bg-slate-100 text-slate-700 border border-slate-300 font-black text-xs h-7 w-7 rounded-xl flex items-center justify-center" id="stepNum2">2</span>
+                            <div>
+                                <h3 class="text-sm font-black text-slate-900">Penentuan Titik Koordinat</h3>
+                                <p class="text-[11px] font-semibold text-slate-500">Akurasi GPS menentukan kecepatan respon</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- GPS & Map Section --}}
+                    <div class="rounded-2xl border border-slate-200/80 bg-slate-50 p-4 transition-all duration-300 space-y-4" id="locationSection">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                            <div class="flex-1 min-w-0">
+                                <span id="locationBadge" class="rounded-md px-2 py-0.5 text-[10px] font-black bg-slate-200 text-slate-700 uppercase tracking-wide border border-slate-300 inline-block">GPS BELUM AKTIF</span>
+                                <p id="locationText" class="mt-1.5 text-xs font-semibold text-slate-600">
+                                    Tekan tombol untuk mendeteksi koordinat Anda saat ini.
+                                </p>
+                            </div>
+                            <button type="button" id="locateBtn" class="w-full sm:w-auto rounded-xl bg-orange-600 px-4 py-2.5 text-xs font-black text-white shadow-md shadow-orange-500/20 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <svg id="locateIcon" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                                <span id="locateBtnText">Ambil Lokasi Saya</span>
+                            </button>
+                        </div>
+
+                        <div id="locationHint" class="gps-status-card gps-idle flex items-start gap-2 rounded-xl bg-white border border-slate-200/80 p-3 text-xs font-semibold text-slate-700 shadow-sm">
+                            <svg class="mt-0.5 h-4 w-4 shrink-0 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
+                            <span id="locationHintText">Rekomendasi: aktifkan GPS perangkat Anda untuk akurasi terbaik.</span>
+                        </div>
+
+                        <div id="map" class="h-56 sm:h-64 rounded-2xl border border-slate-200/80 overflow-hidden shadow-inner"></div>
+                    </div>
+
+                    {{-- Hidden Inputs --}}
+                    <input type="hidden" name="latitude"  id="latitude">
+                    <input type="hidden" name="longitude" id="longitude">
+                    <input type="hidden" name="accuracy"  id="accuracy">
+                    
+                    <div id="reportSummary" class="hidden rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-xs text-emerald-800 space-y-2 shadow-sm">
+                        <div class="font-black flex items-center gap-1.5 text-emerald-700">
+                            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>DATA KOORDINAT SIAP DIKIRIM</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 pt-1 border-t border-emerald-200 font-mono">
+                            <div>
+                                <div class="text-[9px] font-bold text-emerald-600 uppercase">Nomor HP</div>
+                                <div id="summaryPhone" class="font-black truncate">-</div>
+                            </div>
+                            <div>
+                                <div class="text-[9px] font-bold text-emerald-600 uppercase">Koordinat</div>
+                                <div id="summaryLocation" class="font-black truncate">-</div>
+                            </div>
+                            <div>
+                                <div class="text-[9px] font-bold text-emerald-600 uppercase">Akurasi</div>
+                                <div id="summaryAccuracy" class="font-black">-</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="p-4 space-y-4">
-
-                {{-- ── Nama Pelapor & Nomor HP ── --}}
-                <div class="grid gap-3 sm:grid-cols-2">
-                    <div>
-                        <label class="form-label" for="reporter_name">Nama Pelapor <span class="text-red-500">*</span></label>
-                        <input
-                            id="reporter_name"
-                            name="reporter_name"
-                            type="text"
-                            value="{{ old('reporter_name') }}"
-                            placeholder="Nama lengkap Anda"
-                            class="form-input"
-                            required
-                        >
-                    </div>
-                    <div>
-                        <label class="form-label" for="reporter_phone">Nomor HP / WA <span class="text-red-500">*</span></label>
-                        <input
-                            id="reporter_phone"
-                            name="reporter_phone"
-                            type="tel"
-                            value="{{ old('reporter_phone') }}"
-                            placeholder="Contoh: 081234567890"
-                            inputmode="tel"
-                            autocomplete="tel"
-                            maxlength="17"
-                            aria-describedby="phoneHelp"
-                            class="form-input @error('reporter_phone') border-red-400 @enderror"
-                            required
-                        >
-                        <p id="phoneHelp" class="mt-1 text-[11px] text-slate-500">Gunakan format 08 atau +62. Spasi dan tanda hubung diperbolehkan.</p>
-                        @error('reporter_phone')
-                            <p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-                </div>
-
-                {{-- ── Jenis Kejadian & Tingkat Prioritas ── --}}
-                <div>
-                    <div>
-                        <label class="form-label">Jenis Kejadian <span class="text-red-500">*</span></label>
-                        <div class="custom-select-wrapper" id="incidentWrapper">
-                            <div class="select-trigger" id="incidentTrigger">
-                                <span id="incidentIcon">!</span>
-                                <span id="incidentLabel">Pilih jenis kejadian</span>
-                                <svg class="select-arrow h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+            {{-- Right Column: Incident Data Form (7 Cols) --}}
+            <div class="lg:col-span-7">
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xl space-y-6">
+                    
+                    <div class="flex items-center justify-between border-b border-slate-200/80 pb-4" id="step1">
+                        <div class="flex items-center gap-2.5">
+                            <span class="step-dot bg-slate-100 text-slate-700 border border-slate-300 font-black text-xs h-7 w-7 rounded-xl flex items-center justify-center" id="stepNum1">1</span>
+                            <div>
+                                <h3 class="text-sm font-black text-slate-900">Detail Informasi Kejadian</h3>
+                                <p class="text-[11px] font-semibold text-slate-500">Lengkapi data pelapor dan situasi insiden</p>
                             </div>
-                            <div class="select-dropdown" id="incidentDropdown">
-                                <div class="select-option" data-value="Kecelakaan" data-icon="1">1&nbsp; Kecelakaan</div>
-                                <div class="select-option" data-value="Orang hilang" data-icon="2">2&nbsp; Orang Hilang</div>
-                                <div class="select-option" data-value="Pendaki cedera" data-icon="3">3&nbsp; Pendaki Cedera</div>
-                                <div class="select-option" data-value="Banjir" data-icon="4">4&nbsp; Banjir</div>
-                                <div class="select-option" data-value="Kebakaran" data-icon="5">5&nbsp; Kebakaran</div>
-                                <div class="select-option" data-value="Lainnya" data-icon="6">6&nbsp; Lainnya</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-5">
+                        {{-- Nama Pelapor & Nomor HP --}}
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-2" for="reporter_name">Nama Pelapor <span class="text-orange-600">*</span></label>
+                                <input
+                                    id="reporter_name"
+                                    name="reporter_name"
+                                    type="text"
+                                    value="{{ old('reporter_name') }}"
+                                    placeholder="Nama lengkap Anda"
+                                    class="form-input w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-900 focus:border-orange-500 focus:bg-white focus:outline-none transition-all shadow-sm"
+                                    required
+                                >
                             </div>
-                            <input type="hidden" name="incident_type" id="incidentValue" value="{{ old('incident_type') }}" required>
-                        </div>
-                    </div>
-                    <input type="hidden" name="priority" value="{{ old('priority', 'high') }}">
-                </div>
-
-                {{-- ── Deskripsi Kejadian ── --}}
-                <div>
-                    <label class="form-label" for="description">Deskripsi Kejadian <span class="text-red-500">*</span></label>
-                    <textarea
-                        id="description"
-                        name="description"
-                        rows="3"
-                        placeholder="Tulis kronologi singkat, estimasi jumlah korban, dan kondisi saat ini"
-                        class="form-input resize-none"
-                        required
-                    >{{ old('description') }}</textarea>
-                    <div class="mt-1 flex justify-between items-center text-[10px] text-slate-400">
-                        <span>Jelaskan situasi sejelas mungkin.</span>
-                        <span id="charCount">0 / 2000 karakter</span>
-                    </div>
-                </div>
-
-                {{-- ── GPS & Map Section (Compact) ── --}}
-                <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 transition-all duration-300" id="locationSection">
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <div class="flex-1 min-w-[200px]">
-                            <div class="flex items-center gap-1.5">
-                                <span id="locationBadge" class="rounded px-1.5 py-0.5 text-[9px] font-bold bg-slate-200 text-slate-600">GPS BELUM AKTIF</span>
+                            <div>
+                                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-2" for="reporter_phone">Nomor HP / WhatsApp <span class="text-orange-600">*</span></label>
+                                <input
+                                    id="reporter_phone"
+                                    name="reporter_phone"
+                                    type="tel"
+                                    value="{{ old('reporter_phone') }}"
+                                    placeholder="Contoh: 081234567890"
+                                    inputmode="tel"
+                                    autocomplete="tel"
+                                    maxlength="17"
+                                    aria-describedby="phoneHelp"
+                                    class="form-input w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-900 focus:border-orange-500 focus:bg-white focus:outline-none transition-all shadow-sm @error('reporter_phone') border-red-500 @enderror"
+                                    required
+                                >
+                                <p id="phoneHelp" class="mt-1.5 text-[11px] font-semibold text-slate-500">Gunakan format 08 atau +62 untuk nomor aktif.</p>
+                                @error('reporter_phone')
+                                    <p class="mt-1 text-xs font-bold text-red-500">{{ $message }}</p>
+                                @enderror
                             </div>
-                            <p id="locationText" class="mt-1 text-[11px] text-slate-500">
-                                Koordinat lokasi presisi mempercepat kedatangan tim penyelamat.
-                            </p>
                         </div>
-                        <button type="button" id="locateBtn" class="w-full sm:w-auto">
-                            <svg id="locateIcon" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
-                            <span id="locateBtnText">Ambil Lokasi Saya</span>
-                        </button>
-                    </div>
 
-                    <div id="locationHint" class="gps-status-card gps-idle mt-2.5 flex items-start gap-1.5">
-                        <svg class="mt-0.5 h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
-                        <span id="locationHintText">Rekomendasi: aktifkan GPS perangkat Anda untuk akurasi terbaik.</span>
-                    </div>
+                        {{-- Jenis Kejadian & Tingkat Prioritas --}}
+                        <div>
+                            <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-2">Jenis Kejadian Darurat <span class="text-orange-600">*</span></label>
+                            <div class="custom-select-wrapper relative" id="incidentWrapper">
+                                <div class="select-trigger flex items-center justify-between w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-bold text-slate-900 cursor-pointer hover:border-orange-500 transition-all shadow-sm" id="incidentTrigger">
+                                    <div class="flex items-center gap-2.5">
+                                        <span id="incidentIcon" class="grid h-6 w-6 place-items-center rounded-lg bg-orange-100 text-orange-600 font-black text-xs">!</span>
+                                        <span id="incidentLabel">Pilih klasifikasi insiden darurat</span>
+                                    </div>
+                                    <svg class="select-arrow h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                                </div>
+                                <div class="select-dropdown absolute left-0 right-0 top-full mt-2 rounded-2xl border border-slate-200/80 bg-white shadow-2xl p-2 z-50 space-y-1" id="incidentDropdown">
+                                    <div class="select-option flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer transition-all" data-value="Kecelakaan" data-icon="💥"><span class="grid h-6 w-6 place-items-center rounded-lg bg-red-100 text-red-600 text-xs font-black">💥</span> Kecelakaan Lalu Lintas / Transportasi</div>
+                                    <div class="select-option flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer transition-all" data-value="Orang hilang" data-icon="🔍"><span class="grid h-6 w-6 place-items-center rounded-lg bg-amber-100 text-amber-600 text-xs font-black">🔍</span> Orang Hilang / Tersesat</div>
+                                    <div class="select-option flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer transition-all" data-value="Pendaki cedera" data-icon="⛰️"><span class="grid h-6 w-6 place-items-center rounded-lg bg-orange-100 text-orange-600 text-xs font-black">⛰️</span> Pendaki Cedera / Evakuasi Hutan</div>
+                                    <div class="select-option flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer transition-all" data-value="Banjir" data-icon="🌊"><span class="grid h-6 w-6 place-items-center rounded-lg bg-blue-100 text-blue-600 text-xs font-black">🌊</span> Banjir / Bencana Alam Perairan</div>
+                                    <div class="select-option flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer transition-all" data-value="Kebakaran" data-icon="🔥"><span class="grid h-6 w-6 place-items-center rounded-lg bg-red-100 text-red-600 text-xs font-black">🔥</span> Kebakaran / Situasi Berbahaya</div>
+                                    <div class="select-option flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer transition-all" data-value="Lainnya" data-icon="🚨"><span class="grid h-6 w-6 place-items-center rounded-lg bg-purple-100 text-purple-600 text-xs font-black">🚨</span> Situasi Darurat Lainnya</div>
+                                </div>
+                                <input type="hidden" name="incident_type" id="incidentValue" value="{{ old('incident_type') }}" required>
+                            </div>
+                            <input type="hidden" name="priority" value="{{ old('priority', 'high') }}">
+                        </div>
 
-                    <div id="map" class="mt-2.5 h-40 sm:h-48 rounded border border-slate-200 overflow-hidden"></div>
+                        {{-- Deskripsi Kejadian --}}
+                        <div>
+                            <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-2" for="description">Kronologi & Situasi Kejadian <span class="text-orange-600">*</span></label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                rows="4"
+                                placeholder="Tulis kronologi singkat kejadian, estimasi jumlah korban, kondisi lingkungan saat ini, dan ciri-ciri khusus..."
+                                class="form-input w-full rounded-xl border border-slate-300 bg-white p-4 text-sm font-semibold text-slate-900 focus:border-orange-500 focus:bg-white focus:outline-none transition-all resize-none shadow-sm"
+                                required
+                            >{{ old('description') }}</textarea>
+                            <div class="mt-1.5 flex justify-between items-center text-[11px] font-semibold text-slate-500">
+                                <span>Informasi yang akurat membantu tim membawa peralatan yang tepat.</span>
+                                <span id="charCount" class="font-mono">0 / 2000 karakter</span>
+                            </div>
+                        </div>
+
+                        {{-- Submit Button (Panic Button Style) --}}
+                        <div class="pt-4 border-t border-slate-200/80">
+                            <button type="submit" id="submitBtn" class="gps-pending-state w-full rounded-2xl bg-gradient-to-r from-orange-600 via-amber-600 to-red-600 py-4 px-6 text-base font-black text-white shadow-md shadow-orange-500/20 hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-3">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                                <span id="submitBtnText">KIRIM LAPORAN DARURAT &rarr;</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                {{-- Hidden Inputs --}}
-                <input type="hidden" name="latitude"  id="latitude">
-                <input type="hidden" name="longitude" id="longitude">
-                <input type="hidden" name="accuracy"  id="accuracy">
-                <div id="reportSummary" class="hidden rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900">
-                    <div class="font-bold">Data siap dikirim</div>
-                    <div class="mt-2 grid gap-1 sm:grid-cols-3">
-                        <div>
-                            <div class="text-[10px] uppercase text-emerald-700">Nomor HP</div>
-                            <div id="summaryPhone" class="font-semibold">-</div>
-                        </div>
-                        <div>
-                            <div class="text-[10px] uppercase text-emerald-700">Koordinat</div>
-                            <div id="summaryLocation" class="font-semibold">-</div>
-                        </div>
-                        <div>
-                            <div class="text-[10px] uppercase text-emerald-700">Akurasi</div>
-                            <div id="summaryAccuracy" class="font-semibold">-</div>
-                        </div>
-                    </div>
-                </div>
-                <button type="submit" id="submitBtn" class="gps-pending-state">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
-                    <span id="submitBtnText">Kirim Laporan Darurat</span>
-                </button>
-
+                {{-- Disclaimer --}}
+                <p class="mt-4 text-center text-xs font-bold text-slate-500">
+                    ⚠️ Peringatan: Penyalahgunaan sistem panggilan darurat ini dapat dikenakan sanksi hukum sesuai undang-undang yang berlaku.
+                </p>
             </div>
+
         </form>
-
-        {{-- Disclaimer --}}
-        <p class="mt-3 text-center text-[10px] text-slate-400 fade-up delay-2">
-            Penyalahgunaan sistem ini diancam sanksi hukum. Harap gunakan hanya untuk situasi darurat.
-        </p>
     </div>
 
     @push('scripts')

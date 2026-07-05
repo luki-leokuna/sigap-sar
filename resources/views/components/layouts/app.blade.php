@@ -186,61 +186,71 @@
         @endif
     @endauth
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+<body class="min-h-screen bg-[#f4f7fb] text-slate-800 antialiased flex flex-col font-sans selection:bg-orange-500 selection:text-white">
     @unless($hideChrome)
     @php
         $isMemberShell = auth()->check() && auth()->user()->isMember();
     @endphp
 
     @if($isMemberShell)
-    <header class="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 shadow-sm backdrop-blur-xl">
-        <div class="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-3 sm:px-4">
-            <a href="{{ route('member.dashboard') }}" class="flex min-w-0 items-center gap-2.5">
-                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-orange-600 to-amber-600 text-sm font-black text-white shadow-md shadow-orange-500/20">SG</span>
+    <header class="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 shadow-sm backdrop-blur-2xl">
+        <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
+            <a href="{{ route('member.dashboard') }}" class="flex min-w-0 items-center gap-3 group">
+                <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-orange-600 via-amber-600 to-red-600 text-sm font-black text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">SG</span>
                 <span class="min-w-0">
-                    <span class="block truncate text-sm font-black tracking-tight leading-tight text-slate-950">SIGAP-SAR</span>
-                    <span class="block truncate text-[11px] font-bold leading-tight text-slate-500">Panel Operasi Anggota</span>
+                    <span class="flex items-center gap-2">
+                        <span class="block truncate text-base font-black tracking-tight text-slate-900">SIGAP-SAR</span>
+                        <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE</span>
+                    </span>
+                    <span class="block truncate text-xs font-semibold text-slate-500">Tactical Member Operation Unit</span>
                 </span>
             </a>
-            <nav class="flex shrink-0 items-center gap-1.5 text-xs font-black">
-                <a class="inline-flex h-9 items-center rounded-lg px-3 {{ request()->routeIs('member.dashboard') ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100' }}" href="{{ route('member.dashboard') }}">
+            <nav class="flex shrink-0 items-center gap-2 text-xs font-bold">
+                <a class="inline-flex h-10 items-center rounded-xl px-4 transition-all {{ request()->routeIs('member.dashboard') ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/20 font-black' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}" href="{{ route('member.dashboard') }}">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                     Dashboard
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button class="inline-flex h-9 items-center rounded-lg border border-slate-200 bg-white px-3 text-slate-700 shadow-sm hover:bg-slate-50">Keluar</button>
+                    <button class="inline-flex h-10 items-center rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-700 shadow-sm hover:bg-red-600 hover:border-red-600 hover:text-white transition-all font-bold">Keluar</button>
                 </form>
             </nav>
         </div>
     </header>
     @else
-    <header class="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl shadow-sm">
+    <header class="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-2xl shadow-sm">
         @php
             $homeRoute = auth()->check()
                 ? (auth()->user()->isAdmin() ? route('admin.dashboard') : route('member.dashboard'))
                 : route('public.report');
         @endphp
-        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-            <a href="{{ $homeRoute }}" class="flex items-center gap-3">
-                <span class="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-500 font-black text-white shadow-lg shadow-orange-500/25">SG</span>
+        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-3.5">
+            <a href="{{ $homeRoute }}" class="flex items-center gap-3 group">
+                <span class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-orange-600 via-amber-600 to-red-600 font-black text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform text-lg">SG</span>
                 <span>
-                    <span class="block text-lg font-black tracking-tight leading-tight text-slate-900">SIGAP-SAR</span>
-                    <span class="block text-xs font-bold text-slate-500">Sistem Informasi Tanggap Darurat & Gerak Cepat SAR</span>
+                    <span class="flex items-center gap-2.5">
+                        <span class="block text-xl font-black tracking-tight text-slate-900">SIGAP-SAR</span>
+                        <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-extrabold text-emerald-700 border border-emerald-200 shadow-sm"><span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span> ONLINE</span>
+                    </span>
+                    <span class="block text-xs font-semibold text-slate-500 tracking-wide">Sistem Informasi Tanggap Darurat & Gerak Cepat SAR</span>
                 </span>
             </a>
-            <nav class="flex items-center gap-2 text-sm font-bold">
+            <nav class="flex items-center gap-2.5 text-sm font-bold">
                 @auth
                     @if(auth()->user()->isAdmin())
-                        <a class="rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-100" href="{{ route('admin.dashboard') }}">Admin</a>
+                        <a class="rounded-xl px-4 py-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all {{ request()->routeIs('admin.*') ? 'bg-orange-50 text-orange-600 border border-orange-200/80 font-extrabold shadow-sm' : '' }}" href="{{ route('admin.dashboard') }}">Posko Komando</a>
                     @else
-                        <a class="rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-100" href="{{ route('member.dashboard') }}">Anggota</a>
+                        <a class="rounded-xl px-4 py-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all {{ request()->routeIs('member.*') ? 'bg-orange-50 text-orange-600 border border-orange-200/80 font-extrabold shadow-sm' : '' }}" href="{{ route('member.dashboard') }}">Panel Anggota</a>
                     @endif
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button class="rounded-lg bg-slate-900 px-3 py-2 text-white">Keluar</button>
+                        <button class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-slate-700 hover:bg-red-600 hover:border-red-600 hover:text-white transition-all shadow-sm">Keluar</button>
                     </form>
                 @else
-                    <a class="rounded-lg bg-slate-900 px-3 py-2 text-white" href="{{ route('login') }}">Login Posko</a>
+                    <a class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-600 via-amber-600 to-red-600 px-5 py-2.5 font-extrabold text-white shadow-md shadow-orange-500/20 hover:brightness-110 transition-all active:scale-95" href="{{ route('login') }}">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+                        Login Posko
+                    </a>
                 @endauth
             </nav>
         </div>
@@ -248,20 +258,38 @@
     @endif
     @endunless
 
-    <main class="{{ $fullBleed ? 'mx-auto max-w-none px-0 py-0' : 'mx-auto max-w-7xl px-4 py-6' }}">
+    <main class="flex-1 {{ $fullBleed ? 'w-full' : 'mx-auto max-w-7xl w-full px-4 sm:px-6 py-8' }}">
         @if(session('status'))
-            <div id="appStatusNotice" class="{{ $fullBleed ? 'fixed left-3 right-3 top-3 z-[900] rounded-xl border border-emerald-200 bg-emerald-50/95 px-4 py-3 text-sm font-black text-emerald-800 shadow-xl backdrop-blur transition-opacity duration-300' : 'mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800' }}">
-                {{ session('status') }}
+            <div id="appStatusNotice" class="{{ $fullBleed ? 'fixed left-4 right-4 top-4 z-[900] rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-4 text-sm font-extrabold text-emerald-800 shadow-xl backdrop-blur-xl transition-all duration-300 flex items-center gap-3' : 'mb-6 rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-4 text-sm font-bold text-emerald-800 shadow-md backdrop-blur-md flex items-center gap-3' }}">
+                <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-emerald-500 text-white font-black">✓</span>
+                <span>{{ session('status') }}</span>
             </div>
         @endif
         @if($errors->any())
-            <div id="appErrorNotice" class="{{ $fullBleed ? 'fixed left-3 right-3 top-3 z-[900] rounded-xl border border-red-200 bg-red-50/95 px-4 py-3 text-sm font-black text-red-800 shadow-xl backdrop-blur transition-opacity duration-300' : 'mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800' }}">
-                {{ $errors->first() }}
+            <div id="appErrorNotice" class="{{ $fullBleed ? 'fixed left-4 right-4 top-4 z-[900] rounded-2xl border border-red-300 bg-red-50 px-5 py-4 text-sm font-extrabold text-red-800 shadow-xl backdrop-blur-xl transition-all duration-300 flex items-center gap-3' : 'mb-6 rounded-2xl border border-red-300 bg-red-50 px-5 py-4 text-sm font-bold text-red-800 shadow-md backdrop-blur-md flex items-center gap-3' }}">
+                <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-red-500 text-white font-black">!</span>
+                <span>{{ $errors->first() }}</span>
             </div>
         @endif
 
         {{ $slot }}
     </main>
+
+    @unless($hideChrome)
+    <footer class="mt-auto border-t border-slate-200/80 bg-white/80 backdrop-blur-lg py-6 text-slate-500 text-xs">
+        <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 sm:px-6 sm:flex-row">
+            <div class="flex items-center gap-3">
+                <span class="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-orange-600 to-red-600 font-black text-white text-[11px] shadow-sm">SG</span>
+                <span class="font-extrabold text-slate-800 text-sm tracking-wide">SIGAP-SAR Command Center</span>
+                <span class="text-slate-300">&bull;</span>
+                <span class="rounded-md bg-orange-50 px-2 py-0.5 font-mono text-[11px] text-orange-600 border border-orange-200/80 font-bold">v3.0.0-Cloud</span>
+            </div>
+            <div class="flex items-center gap-4 text-slate-500 font-semibold">
+                <span>&copy; {{ date('Y') }} SIGAP-SAR Operation Network. All rights reserved.</span>
+            </div>
+        </div>
+    </footer>
+    @endunless
 
     @stack('scripts')
     @if($fullBleed && (session('status') || $errors->any()))
@@ -270,10 +298,10 @@
                 ['appStatusNotice', 'appErrorNotice'].forEach((id) => {
                     const notice = document.getElementById(id);
                     if (!notice) return;
-                    notice.classList.add('opacity-0');
-                    window.setTimeout(() => notice.remove(), 320);
+                    notice.classList.add('opacity-0', '-translate-y-2');
+                    window.setTimeout(() => notice.remove(), 350);
                 });
-            }, 3000);
+            }, 3500);
         </script>
     @endif
 </body>
