@@ -1,176 +1,192 @@
-<x-layouts.app title="Dashboard Admin TIMSAR">
+<x-layouts.app title="PUSKO Command Center - TIMSAR" :hideChrome="true" :fullBleed="true">
+    @push('scripts')
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+            body, .timsar-maxim-admin {
+                font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
+                background-color: #181a20 !important;
+                color: #e2e8f0 !important;
+                overflow: hidden;
+            }
+            /* Map contrast in dark mode */
+            #adminMap {
+                filter: contrast(1.05) saturate(1.1);
+            }
+            /* Custom dark scrollbar */
+            ::-webkit-scrollbar { width: 6px; height: 6px; }
+            ::-webkit-scrollbar-track { background: #181a20; }
+            ::-webkit-scrollbar-thumb { background: #333846; border-radius: 4px; }
+            ::-webkit-scrollbar-thumb:hover { background: #4b5265; }
+        </style>
+    @endpush
 
-    <section class="space-y-6 mx-auto max-w-7xl px-2 sm:px-4 py-4">
+    <div class="timsar-maxim-admin h-screen w-screen overflow-hidden bg-[#181a20] flex flex-col">
         
-        {{-- ── TACTICAL COMMAND HEADER ── --}}
-        <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center pb-5 border-b border-slate-200/80">
-            <div>
-                <div class="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-xs font-black uppercase tracking-wider text-red-700 border border-red-200 shadow-sm">
-                    <span class="h-2 w-2 rounded-full bg-red-500 animate-ping"></span>
-                    <span>PUSAT KENDALI OPERASI (PUSKO) v3.0</span>
+        {{-- ── TOP TACTICAL COMMAND BAR (HEADER) ── --}}
+        <header class="bg-[#1e222b] border-b border-[#333846] px-4 sm:px-6 py-3 shrink-0 flex items-center justify-between gap-4 shadow-xl z-20">
+            <div class="flex items-center gap-3.5 min-w-0">
+                <span class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-orange-600 via-amber-600 to-red-600 text-white font-black text-lg shadow-lg shadow-orange-500/20 border border-orange-400/30">
+                    SG
+                </span>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-red-500/20 border border-red-500/30 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-red-400">
+                            <span class="h-1.5 w-1.5 rounded-full bg-red-500 animate-ping"></span> PUSKO RADAR v3.0
+                        </span>
+                        <h1 class="text-base sm:text-lg font-black text-white truncate">Pusat Kendali & Operasi SAR</h1>
+                    </div>
+                    <p class="text-xs font-semibold text-slate-400 hidden sm:block truncate mt-0.5">Sistem monitoring laporan darurat & tracking koordinat armada realtime</p>
                 </div>
-                <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 mt-2">Dashboard Komando Realtime</h1>
-                <p class="text-xs sm:text-sm text-slate-600 font-semibold mt-1">Sistem monitoring laporan darurat dan tracking koordinat pergerakan tim rescue secara langsung.</p>
             </div>
-            <div class="flex flex-wrap items-center gap-2.5">
-                <a href="{{ route('admin.reports.index') }}" class="rounded-xl border border-slate-300 bg-white hover:border-orange-500 hover:text-orange-600 px-4 py-2.5 text-xs font-black text-slate-700 shadow-sm transition-all">
-                    📋 Riwayat Laporan
+
+            {{-- HUD Stats Pills --}}
+            <div class="hidden xl:flex items-center gap-2.5">
+                <div class="bg-[#242832] border border-[#333846] px-3.5 py-1.5 rounded-xl flex items-center gap-2.5">
+                    <span class="text-xs font-bold text-slate-400">🚨 Laporan Baru:</span>
+                    <span class="font-mono font-black text-red-400 text-sm">{{ $stats['new'] }}</span>
+                </div>
+                <div class="bg-[#242832] border border-[#333846] px-3.5 py-1.5 rounded-xl flex items-center gap-2.5">
+                    <span class="text-xs font-bold text-slate-400">⚡ Operasi Aktif:</span>
+                    <span class="font-mono font-black text-amber-400 text-sm">{{ $stats['active'] }}</span>
+                </div>
+                <div class="bg-[#242832] border border-[#333846] px-3.5 py-1.5 rounded-xl flex items-center gap-2.5">
+                    <span class="text-xs font-bold text-slate-400">📡 Armada Siaga:</span>
+                    <span class="font-mono font-black text-emerald-400 text-sm">{{ $stats['members_online'] }}</span>
+                </div>
+                <a href="{{ route('admin.reports.index', ['status' => 'completed']) }}" class="bg-[#242832] hover:bg-[#2c303d] border border-[#333846] px-3.5 py-1.5 rounded-xl flex items-center gap-2.5 transition-all">
+                    <span class="text-xs font-bold text-slate-400">🛡️ Selesai:</span>
+                    <span class="font-mono font-black text-blue-400 text-sm">{{ $stats['completed_today'] }}</span>
                 </a>
-                <button id="adminNotificationButton" type="button" class="rounded-xl border border-slate-300 bg-white hover:border-orange-500 hover:text-orange-600 px-4 py-2.5 text-xs font-black text-slate-700 shadow-sm transition-all flex items-center gap-2">
-                    <span>🔔 Aktifkan Suara Alarm</span>
+            </div>
+
+            {{-- Actions & Alarm Controls --}}
+            <div class="flex items-center gap-2.5 shrink-0">
+                <a href="{{ route('admin.reports.index') }}" class="rounded-xl bg-[#242832] hover:bg-[#2c303d] border border-[#333846] px-3.5 py-2 text-xs font-bold text-slate-200 transition-all">
+                    📋 Riwayat
+                </a>
+                <button id="adminNotificationButton" type="button" class="rounded-xl bg-[#242832] hover:bg-[#2c303d] border border-[#333846] px-3.5 py-2 text-xs font-bold text-slate-200 transition-all flex items-center gap-1.5">
+                    <span>🔔</span> <span>Alarm</span>
                 </button>
-                <button id="stopAdminAlarmButton" type="button" class="hidden rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-xs font-black text-red-700 shadow-md shadow-red-500/10 transition-all hover:bg-red-600 hover:text-white animate-bounce">
+                <button id="stopAdminAlarmButton" type="button" class="hidden rounded-xl bg-red-600 hover:bg-red-700 border border-red-500 px-3.5 py-2 text-xs font-black text-white shadow-lg shadow-red-600/30 transition-all animate-bounce">
                     🚨 Hentikan Alarm
                 </button>
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button type="submit" class="grid h-8 w-8 place-items-center rounded-xl bg-[#242832] hover:bg-red-500/20 text-slate-400 hover:text-red-400 border border-[#333846] transition-all" title="Keluar dari Komando">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    </button>
+                </form>
             </div>
-        </div>
+        </header>
 
-        {{-- ── DIGITAL STATS BAR (Tactical HUD Cards) ── --}}
-        <div class="grid gap-4 grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xl relative overflow-hidden group hover:border-red-500/50 transition-all">
-                <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-red-50 blur-2xl group-hover:bg-red-100 transition-all"></div>
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Laporan Baru</span>
-                    <span class="grid h-8 w-8 place-items-center rounded-xl bg-red-50 text-red-600 font-black text-xs border border-red-200 shadow-sm">🚨</span>
-                </div>
-                <p class="text-3xl sm:text-5xl font-black text-slate-900 mt-2 font-mono tracking-tight">{{ $stats['new'] }}</p>
-                <span class="mt-2 inline-block text-[10px] font-bold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">Butuh Tindakan Segera</span>
-            </div>
-
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xl relative overflow-hidden group hover:border-amber-500/50 transition-all">
-                <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-amber-50 blur-2xl group-hover:bg-amber-100 transition-all"></div>
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Sedang Ditangani</span>
-                    <span class="grid h-8 w-8 place-items-center rounded-xl bg-amber-50 text-amber-600 font-black text-xs border border-amber-200 shadow-sm">⚡</span>
-                </div>
-                <p class="text-3xl sm:text-5xl font-black text-slate-900 mt-2 font-mono tracking-tight">{{ $stats['active'] }}</p>
-                <span class="mt-2 inline-block text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">Operasi Berjalan</span>
-            </div>
-
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xl relative overflow-hidden group hover:border-emerald-500/50 transition-all">
-                <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-emerald-50 blur-2xl group-hover:bg-emerald-100 transition-all"></div>
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Anggota Online</span>
-                    <span class="grid h-8 w-8 place-items-center rounded-xl bg-emerald-50 text-emerald-600 font-black text-xs border border-emerald-200 shadow-sm">📡</span>
-                </div>
-                <p class="text-3xl sm:text-5xl font-black text-slate-900 mt-2 font-mono tracking-tight">{{ $stats['members_online'] }}</p>
-                <span class="mt-2 inline-block text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md flex items-center gap-1.5 w-max"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Unit Siaga</span>
-            </div>
-
-            <a href="{{ route('admin.reports.index', ['status' => 'completed']) }}" class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xl relative overflow-hidden group hover:border-blue-500/50 transition-all block">
-                <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-blue-50 blur-2xl group-hover:bg-blue-100 transition-all"></div>
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Selesai Hari Ini</span>
-                    <span class="grid h-8 w-8 place-items-center rounded-xl bg-blue-50 text-blue-600 font-black text-xs border border-blue-200 shadow-sm">🛡️</span>
-                </div>
-                <p class="text-3xl sm:text-5xl font-black text-slate-900 mt-2 font-mono tracking-tight">{{ $stats['completed_today'] }}</p>
-                <span class="mt-2 inline-block text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md">Misi Berhasil &rarr;</span>
-            </a>
-        </div>
-
-        {{-- ── MAIN PANEL: MAP & TACTICAL LISTS ── --}}
-        <div class="grid gap-6 lg:grid-cols-[1fr_400px]">
+        {{-- ── MAIN SPLIT-SCREEN TACTICAL COMMAND STATION ── --}}
+        <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden relative">
             
-            {{-- Peta Operasional Taktis --}}
-            <div class="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-xl flex flex-col">
-                <div class="border-b border-slate-200/80 bg-slate-50 px-6 py-4 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <span class="grid h-8 w-8 place-items-center rounded-xl bg-orange-100 text-orange-600 font-black text-sm border border-orange-200 shadow-sm">🛰️</span>
-                        <div>
-                            <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider">Peta Taktis Operasional</h2>
-                            <p id="mapMeta" class="text-xs font-semibold text-slate-500 mt-0.5">Memuat data koordinat satelit...</p>
-                        </div>
+            {{-- LEFT PANE (65% / 8 Cols): Peta Komando Raksasa --}}
+            <div class="lg:col-span-8 h-full relative overflow-hidden flex flex-col border-b lg:border-b-0 lg:border-r border-[#333846] bg-[#181a20]">
+                <div class="bg-[#1e222b] px-4 py-2 border-b border-[#333846] flex items-center justify-between text-xs shrink-0 z-10">
+                    <div class="flex items-center gap-2">
+                        <span class="grid h-6 w-6 place-items-center rounded-lg bg-orange-500/20 text-orange-400 font-black text-xs border border-orange-500/30">🛰️</span>
+                        <span class="font-black text-slate-200 uppercase tracking-wider">Peta Operasional Taktis</span>
                     </div>
-                    <div class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full shadow-sm">
-                        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
-                        <span class="text-[10px] font-black text-emerald-700 uppercase tracking-wider">RADAR LIVE</span>
+                    <div class="flex items-center gap-3">
+                        <span id="mapMeta" class="text-[11px] font-semibold text-slate-400">Memuat radar satelit...</span>
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 px-2.5 py-0.5 text-[10px] font-black text-emerald-400 uppercase">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping"></span> RADAR LIVE
+                        </span>
                     </div>
                 </div>
-                <div id="adminMap" class="h-[550px] lg:h-[700px] z-10 w-full"></div>
+                <div id="adminMap" class="flex-1 w-full z-0"></div>
             </div>
 
-            {{-- Sidebar Komando --}}
-            <aside class="space-y-6 flex flex-col justify-between">
+            {{-- RIGHT PANE (35% / 4 Cols): Sidebar Komando Live --}}
+            <aside class="lg:col-span-4 h-full bg-[#1e222b] flex flex-col justify-between overflow-y-auto">
                 
-                {{-- Laporan Aktif --}}
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl flex-1 flex flex-col">
-                    <div class="flex items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
+                {{-- SECTION 1: Laporan Darurat Aktif (Live Feed) --}}
+                <div class="p-4 sm:p-5 flex-1 flex flex-col border-b border-[#333846]">
+                    <div class="flex items-center justify-between gap-3 pb-3 border-b border-[#333846] shrink-0">
                         <div>
-                            <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider">Daftar Laporan Aktif</h2>
-                            <p class="text-xs font-semibold text-slate-500">Insiden membutuhkan penanganan</p>
+                            <h2 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+                                <span>🚨</span> <span>Live Feed Darurat</span>
+                            </h2>
+                            <p class="text-[11px] font-medium text-slate-400 mt-0.5">Insiden aktif membutuhkan respons</p>
                         </div>
-                        <span id="reportsCount" class="rounded-full bg-red-50 border border-red-200 px-3 py-1 text-xs font-black text-red-700 font-mono shadow-sm">{{ $reports->count() }}</span>
+                        <span id="reportsCount" class="rounded-xl bg-red-500/20 border border-red-500/40 px-3 py-1 text-xs font-black text-red-400 font-mono shadow-sm">{{ $reports->count() }}</span>
                     </div>
-                    <div id="activeReportsList" class="mt-4 space-y-3 max-h-[260px] lg:max-h-[300px] overflow-y-auto pr-1">
+                    
+                    <div id="activeReportsList" class="mt-3 space-y-2.5 flex-1 overflow-y-auto pr-1">
                         @forelse($reports as $report)
                             @php
                                 $priorityClass = match ($report->priority) {
-                                    'critical' => 'bg-red-50 text-red-700 border-red-200 animate-pulse',
-                                    'high' => 'bg-orange-50 text-orange-700 border-orange-200',
-                                    'medium' => 'bg-amber-50 text-amber-700 border-amber-200',
-                                    default => 'bg-slate-100 text-slate-700 border-slate-200',
+                                    'critical' => 'bg-red-500/20 text-red-300 border-red-500/40 animate-pulse',
+                                    'high' => 'bg-orange-500/20 text-orange-300 border-orange-500/40',
+                                    'medium' => 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+                                    default => 'bg-[#181a20] text-slate-300 border-[#333846]',
                                 };
                                 $priorityBorder = match ($report->priority) {
                                     'critical' => 'border-l-red-500',
                                     'high' => 'border-l-orange-500',
                                     'medium' => 'border-l-amber-500',
-                                    default => 'border-l-slate-400',
+                                    default => 'border-l-slate-500',
                                 };
                             @endphp
-                            <a href="{{ route('admin.reports.show', $report) }}" class="block rounded-2xl border border-slate-200/80 border-l-4 {{ $priorityBorder }} p-4 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 transition-all shadow-sm group">
+                            <a href="{{ route('admin.reports.show', $report) }}" class="block rounded-2xl bg-[#242832] border border-[#333846] border-l-4 {{ $priorityBorder }} p-3.5 hover:border-orange-500 hover:bg-[#2c303d] transition-all shadow-md group">
                                 <div class="flex items-start justify-between gap-2">
-                                    <div>
-                                        <p class="font-black text-slate-900 text-sm sm:text-base leading-tight group-hover:text-orange-600 transition-colors">{{ $report->incident_type }}</p>
-                                        <p class="text-[11px] text-slate-500 mt-1 font-mono">{{ $report->tracking_code }} • {{ $report->created_at->diffForHumans() }}</p>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-white text-sm leading-tight group-hover:text-orange-400 transition-colors truncate">{{ $report->incident_type }}</p>
+                                        <p class="text-[11px] text-slate-400 mt-1 font-mono">{{ $report->tracking_code }} • {{ $report->created_at->diffForHumans() }}</p>
                                     </div>
-                                    <span class="rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider border {{ $priorityClass }}">{{ $report->priority }}</span>
+                                    <span class="shrink-0 rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-wider border {{ $priorityClass }}">{{ $report->priority }}</span>
                                 </div>
-                                <div class="mt-3 flex items-center justify-between text-xs border-t border-slate-200/80 pt-2.5 text-slate-600">
-                                    <div>Status: <span class="font-black text-slate-800">{{ \App\Http\Controllers\PublicTrackingController::statusLabel($report->status) }}</span></div>
-                                    <div>Petugas: <span class="font-black text-orange-600">{{ $report->assignedMember?->name ?? 'Belum' }}</span></div>
+                                <div class="mt-2.5 flex items-center justify-between text-[11px] border-t border-[#333846] pt-2 text-slate-400 font-semibold">
+                                    <div>Status: <span class="font-bold text-slate-200">{{ \App\Http\Controllers\PublicTrackingController::statusLabel($report->status) }}</span></div>
+                                    <div>Petugas: <span class="font-bold text-orange-400">{{ $report->assignedMember?->name ?? 'Belum' }}</span></div>
                                 </div>
                             </a>
                         @empty
-                            <div class="rounded-2xl border border-slate-200/80 bg-slate-50 p-6 text-center shadow-sm">
+                            <div class="rounded-2xl border border-[#333846] bg-[#242832] p-6 text-center shadow-sm my-auto">
                                 <span class="block text-2xl mb-1">✅</span>
-                                <p class="text-xs font-bold text-slate-500">Semua insiden telah terkendali. Belum ada laporan aktif baru.</p>
+                                <p class="text-xs font-bold text-slate-400">Semua insiden terkendali. Belum ada laporan aktif baru.</p>
                             </div>
                         @endforelse
                     </div>
                 </div>
 
-                {{-- Anggota Lapangan --}}
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl flex-1 flex flex-col">
-                    <div class="border-b border-slate-200/80 pb-4 flex items-center justify-between">
+                {{-- SECTION 2: Radar Unit Rescue & Armada (Rescuers) --}}
+                <div class="p-4 sm:p-5 flex-1 flex flex-col max-h-[45vh]">
+                    <div class="flex items-center justify-between gap-3 pb-3 border-b border-[#333846] shrink-0">
                         <div>
-                            <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider">Unit Rescue TIMSAR</h2>
-                            <p class="text-xs font-semibold text-slate-500">Monitoring konektivitas petugas lapangan</p>
+                            <h2 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+                                <span>🟢</span> <span>Radar Armada TIMSAR</span>
+                            </h2>
+                            <p class="text-[11px] font-medium text-slate-400 mt-0.5">Monitoring konektivitas petugas lapangan</p>
                         </div>
-                        <span class="text-xs font-mono font-bold text-slate-500">{{ $members->count() }} Personel</span>
+                        <span class="rounded-xl bg-[#242832] border border-[#333846] px-2.5 py-1 text-xs font-mono font-bold text-slate-300">{{ $members->count() }} Unit</span>
                     </div>
-                    <div class="mt-4 space-y-3 max-h-[280px] lg:max-h-[340px] overflow-y-auto pr-1">
+                    
+                    <div class="mt-3 space-y-2 overflow-y-auto pr-1 flex-1">
                         @foreach($members as $member)
                             @php
                                 $isOnline = $member->memberLocation?->last_seen_at?->gt(now()->subSeconds(90));
                             @endphp
-                            <div class="rounded-2xl border border-slate-200/80 p-4 bg-slate-50 hover:bg-slate-100 transition-all shadow-sm">
+                            <div class="rounded-2xl bg-[#242832] border border-[#333846] p-3 hover:border-slate-500 transition-all shadow-sm">
                                 <div class="flex items-center justify-between gap-2">
-                                    <p class="font-black text-slate-900 text-sm sm:text-base leading-tight flex items-center gap-2">
+                                    <p class="font-bold text-white text-xs sm:text-sm leading-tight flex items-center gap-2 truncate">
                                         <span>🧑‍🚒</span>
-                                        <span>{{ $member->name }}</span>
+                                        <span class="truncate">{{ $member->name }}</span>
                                     </p>
-                                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider border {{ $isOnline ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-200 text-slate-600 border-slate-300' }}">
+                                    <span class="shrink-0 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider border {{ $isOnline ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-[#181a20] text-slate-400 border-[#333846]' }}">
                                         <span class="w-1.5 h-1.5 rounded-full {{ $isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-500' }}"></span>
                                         {{ $isOnline ? 'Online' : 'Offline' }}
                                     </span>
                                 </div>
-                                <div class="mt-2 flex items-center justify-between text-xs text-slate-500 font-mono">
+                                <div class="mt-2 flex items-center justify-between text-[11px] text-slate-400 font-mono">
                                     <span>{{ $member->phone }}</span>
-                                    <span class="bg-slate-200 px-2 py-0.5 rounded text-[10px] uppercase text-slate-700">{{ $member->memberLocation?->network_type ?? 'offline' }}</span>
+                                    <span class="bg-[#181a20] border border-[#333846] px-2 py-0.5 rounded text-[9px] uppercase text-slate-300">{{ $member->memberLocation?->network_type ?? 'offline' }}</span>
                                 </div>
-                                <p class="mt-2 text-[11px] font-semibold text-slate-500 border-t border-slate-200/80 pt-2 flex items-center justify-between">
+                                <p class="mt-1.5 text-[10px] font-semibold text-slate-400 border-t border-[#333846] pt-1.5 flex items-center justify-between">
                                     <span>Posisi Terakhir:</span>
-                                    <span class="text-slate-600 font-mono">{{ $member->memberLocation?->last_seen_at?->diffForHumans() ?? '-' }}</span>
+                                    <span class="text-slate-300 font-mono">{{ $member->memberLocation?->last_seen_at?->diffForHumans() ?? '-' }}</span>
                                 </p>
                             </div>
                         @endforeach
@@ -179,7 +195,7 @@
 
             </aside>
         </div>
-    </section>
+    </div>
 
     @push('scripts')
         <style>
@@ -265,7 +281,7 @@
                 reportsCount.textContent = reports.length;
 
                 if (!reports.length) {
-                    activeReportsList.innerHTML = '<p class="rounded bg-slate-50 p-4 text-xs text-slate-500 text-center">Belum ada laporan aktif.</p>';
+                    activeReportsList.innerHTML = '<div class="rounded-2xl border border-[#333846] bg-[#242832] p-6 text-center shadow-sm my-auto"><span class="block text-2xl mb-1">✅</span><p class="text-xs font-bold text-slate-400">Semua insiden terkendali. Belum ada laporan aktif baru.</p></div>';
                     return;
                 }
 
@@ -274,27 +290,27 @@
                         critical: 'border-l-red-500',
                         high: 'border-l-orange-500',
                         medium: 'border-l-amber-500',
-                        low: 'border-l-slate-400',
-                    }[report.priority] || 'border-l-slate-300';
+                        low: 'border-l-slate-500',
+                    }[report.priority] || 'border-l-slate-500';
 
                     const priorityLabelClass = {
-                        critical: 'bg-red-50 text-red-700 border-red-100',
-                        high: 'bg-orange-50 text-orange-700 border-orange-100',
-                        medium: 'bg-amber-50 text-amber-700 border-amber-100',
-                    }[report.priority] || 'bg-slate-50 text-slate-700 border-slate-100';
+                        critical: 'bg-red-500/20 text-red-300 border-red-500/40 animate-pulse',
+                        high: 'bg-orange-500/20 text-orange-300 border-orange-500/40',
+                        medium: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+                    }[report.priority] || 'bg-[#181a20] text-slate-300 border-[#333846]';
 
                     return `
-                        <a href="${report.url}" data-report-id="${report.id}" data-report-alarm-stop class="block rounded border border-slate-200 border-l-4 ${priorityBorder} p-3.5 bg-white hover:bg-slate-50 transition-colors shadow-sm">
+                        <a href="${report.url}" data-report-id="${report.id}" data-report-alarm-stop class="block rounded-2xl bg-[#242832] border border-[#333846] border-l-4 ${priorityBorder} p-3.5 hover:border-orange-500 hover:bg-[#2c303d] transition-all shadow-md group">
                             <div class="flex items-start justify-between gap-2">
-                                <div>
-                                    <p class="font-bold text-slate-900 text-sm sm:text-base leading-tight">${escapeHtml(report.incident_type)}</p>
-                                    <p class="text-xs text-slate-500 mt-1 font-mono">${escapeHtml(report.tracking_code)} - ${formatReportTime(report.created_at)}</p>
+                                <div class="min-w-0">
+                                    <p class="font-bold text-white text-sm leading-tight group-hover:text-orange-400 transition-colors truncate">${escapeHtml(report.incident_type)}</p>
+                                    <p class="text-[11px] text-slate-400 mt-1 font-mono">${escapeHtml(report.tracking_code)} • ${formatReportTime(report.created_at)}</p>
                                 </div>
-                                <span class="rounded px-2 py-0.5 text-xs font-extrabold uppercase tracking-wide ${priorityLabelClass}">${escapeHtml(report.priority).toUpperCase()}</span>
+                                <span class="shrink-0 rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-wider border ${priorityLabelClass}">${escapeHtml(report.priority).toUpperCase()}</span>
                             </div>
-                            <div class="mt-3 flex items-center justify-between text-xs border-t border-slate-100 pt-2 text-slate-600">
-                                <div>Status: <span class="font-bold text-slate-800">${escapeHtml(report.status_label)}</span></div>
-                                <div>Petugas: <span class="font-bold text-slate-800">${escapeHtml(report.assigned_member || 'Belum')}</span></div>
+                            <div class="mt-2.5 flex items-center justify-between text-[11px] border-t border-[#333846] pt-2 text-slate-400 font-semibold">
+                                <div>Status: <span class="font-bold text-slate-200">${escapeHtml(report.status_label)}</span></div>
+                                <div>Petugas: <span class="font-bold text-orange-400">${escapeHtml(report.assigned_member || 'Belum')}</span></div>
                             </div>
                         </a>
                     `;
@@ -304,27 +320,27 @@
             function updateNotificationUi() {
                 if (!('Notification' in window)) {
                     notificationButton.disabled = true;
-                    notificationButton.textContent = 'Notifikasi tidak didukung';
+                    notificationButton.textContent = 'Notif Tidak Didukung';
                     return;
                 }
 
                 if (Notification.permission === 'granted') {
                     notificationButton.disabled = false;
-                    notificationButton.textContent = 'Notifikasi aktif';
-                    notificationButton.className = 'rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5 text-xs font-bold text-emerald-650 hover:bg-emerald-500/20 transition-colors';
+                    notificationButton.textContent = 'Notifikasi Aktif';
+                    notificationButton.className = 'rounded-xl border border-emerald-500/30 bg-emerald-500/15 px-3.5 py-2 text-xs font-bold text-emerald-400 hover:bg-emerald-500/25 transition-all flex items-center gap-1.5';
                     return;
                 }
 
                 if (Notification.permission === 'denied') {
                     notificationButton.disabled = true;
-                    notificationButton.textContent = 'Notifikasi diblokir';
-                    notificationButton.className = 'rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-xs font-bold text-red-500 cursor-not-allowed';
+                    notificationButton.textContent = 'Notif Diblokir';
+                    notificationButton.className = 'rounded-xl border border-red-500/30 bg-red-500/15 px-3.5 py-2 text-xs font-bold text-red-400 cursor-not-allowed flex items-center gap-1.5';
                     return;
                 }
 
                 notificationButton.disabled = false;
-                notificationButton.textContent = 'Aktifkan suara alarm';
-                notificationButton.className = 'rounded-lg border border-slate-300 bg-white hover:bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-700 shadow-sm transition-colors';
+                notificationButton.textContent = 'Aktifkan Alarm';
+                notificationButton.className = 'rounded-xl bg-[#242832] hover:bg-[#2c303d] border border-[#333846] px-3.5 py-2 text-xs font-bold text-slate-200 transition-all flex items-center gap-1.5';
             }
 
             function unlockAlertAudio() {

@@ -1,129 +1,212 @@
-<x-layouts.app title="Dashboard Anggota TIMSAR">
-    <section class="space-y-5">
-        <div class="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:flex-row md:items-center">
-            <div>
-                <p class="text-sm font-black uppercase text-red-600">Anggota lapangan</p>
-                <h1 class="mt-1 text-3xl font-black">{{ auth()->user()->name }}</h1>
-                <p class="mt-2 text-sm font-semibold text-slate-500">GPS dikirim otomatis ke posko setiap 5 detik.</p>
-            </div>
-            <div class="flex flex-wrap gap-2">
-                <span id="gpsQualityBadge" class="rounded-full bg-slate-200 px-4 py-2 text-sm font-black text-slate-700">Menunggu GPS</span>
-                @if($activeAssignment)
-                    <span id="dutyStateBadge" class="rounded-full bg-red-100 px-4 py-2 text-sm font-black text-red-700">Sedang bertugas</span>
-                @else
-                    <span id="dutyStateBadge" class="rounded-full bg-emerald-100 px-4 py-2 text-sm font-black text-emerald-700">Standby posko</span>
-                @endif
-            </div>
-        </div>
+<x-layouts.app title="Dashboard Anggota TIMSAR - Tema Maxim Driver" :hideChrome="true" :fullBleed="true">
+    @push('scripts')
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+            body, .timsar-maxim-driver {
+                font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
+                background-color: #181a20 !important;
+                color: #e2e8f0 !important;
+                overflow: hidden;
+            }
+            /* Bottom sheet styling & transitions */
+            #bottomSheet {
+                transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+                box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+            }
+            #bottomSheet.peek-mode {
+                transform: translateY(calc(100% - 76px));
+            }
+            #bottomSheet.expanded-mode {
+                transform: translateY(0);
+            }
+            /* Map dark contrast */
+            #memberMap {
+                filter: contrast(1.05) saturate(1.1);
+            }
+            /* Custom scrollbar in dark mode */
+            ::-webkit-scrollbar { width: 5px; }
+            ::-webkit-scrollbar-track { background: #1e222b; }
+            ::-webkit-scrollbar-thumb { background: #333846; border-radius: 4px; }
+        </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sheet = document.getElementById('bottomSheet');
+                const handle = document.getElementById('sheetHandle');
+                const toggleBtn = document.getElementById('toggleSheetBtn');
+                const toggleIcon = document.getElementById('toggleSheetIcon');
+                const peekHeader = document.getElementById('peekHeader');
 
-        <div class="grid gap-5 xl:grid-cols-[1fr_380px]">
-            <div class="space-y-5">
-                <div id="assignmentPanel" class="rounded-2xl border {{ $activeAssignment ? 'border-red-200 bg-red-50/40' : 'border-emerald-200 bg-emerald-50/40' }} p-5 shadow-sm">
+                function toggleSheet() {
+                    if (!sheet) return;
+                    const isExpanded = sheet.classList.contains('expanded-mode');
+                    if (isExpanded) {
+                        sheet.classList.remove('expanded-mode');
+                        sheet.classList.add('peek-mode');
+                        if (toggleIcon) toggleIcon.textContent = '▲ Buka';
+                    } else {
+                        sheet.classList.remove('peek-mode');
+                        sheet.classList.add('expanded-mode');
+                        if (toggleIcon) toggleIcon.textContent = '▼ Ringkas';
+                    }
+                }
+
+                if (handle) handle.addEventListener('click', toggleSheet);
+                if (toggleBtn) toggleBtn.addEventListener('click', toggleSheet);
+                if (peekHeader) peekHeader.addEventListener('click', (e) => {
+                    if (!e.target.closest('button')) toggleSheet();
+                });
+            });
+        </script>
+    @endpush
+
+    <div class="timsar-maxim-driver relative h-screen w-screen overflow-hidden bg-[#181a20]">
+        
+        {{-- LAYER 1: Full-Screen Map (Mendominasi 100% Layar) --}}
+        <div id="memberMap" class="absolute inset-0 h-full w-full z-0"></div>
+
+        {{-- LAYER 2: Floating Top Pill Header (Ringkas & Tetap Di Atas) --}}
+        <header class="absolute top-4 left-4 right-4 z-20 max-w-lg mx-auto pointer-events-none">
+            <div class="pointer-events-auto rounded-full bg-[#181a20]/90 backdrop-blur-md border border-[#333846] p-2 sm:p-2.5 px-4 shadow-2xl flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-orange-600 via-amber-600 to-red-600 text-white font-black text-sm shadow-md shadow-orange-500/20 border border-orange-400/30">
+                        {{ substr(auth()->user()->name, 0, 2) }}
+                    </span>
+                    <div class="min-w-0">
+                        <h1 class="text-xs sm:text-sm font-black text-white truncate">{{ auth()->user()->name }}</h1>
+                        <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>Anggota Lapangan • GPS 5s</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2 shrink-0">
                     @if($activeAssignment)
-                        <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                            <div class="max-w-3xl">
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <span class="rounded-full bg-red-600 px-3 py-1 text-xs font-black uppercase tracking-wide text-white">Sedang bertugas</span>
-                                    <span class="rounded-full bg-white px-3 py-1 text-xs font-black uppercase tracking-wide text-red-700">{{ \App\Http\Controllers\PublicTrackingController::assignmentLabel($activeAssignment->status) }}</span>
-                                </div>
-                                <h2 class="mt-1 text-2xl font-black">{{ $activeAssignment->report->incident_type }}</h2>
-                                <p class="mt-1 text-sm font-semibold text-slate-600">{{ $activeAssignment->report->tracking_code }} - buka mode tugas untuk navigasi dan update status lapangan.</p>
+                        <span id="dutyStateBadge" class="rounded-full bg-red-500/20 border border-red-500/40 px-3 py-1 text-[10px] font-black text-red-400 animate-pulse uppercase">Sedang Bertugas</span>
+                    @else
+                        <span id="dutyStateBadge" class="rounded-full bg-emerald-500/20 border border-emerald-500/40 px-3 py-1 text-[10px] font-black text-emerald-400 uppercase">Standby Posko</span>
+                    @endif
+                    
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="grid h-8 w-8 place-items-center rounded-full bg-[#242832] hover:bg-red-500/20 text-slate-400 hover:text-red-400 border border-[#333846] transition-all" title="Keluar / Offline">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </header>
+
+        {{-- LAYER 3: Interactive Bottom Sheet (Swipe Up Drawer ala Maxim Driver) --}}
+        <div id="bottomSheet" class="expanded-mode absolute bottom-0 left-0 right-0 z-20 max-w-lg mx-auto bg-[#1e222b]/95 backdrop-blur-xl border-t border-x border-[#333846] rounded-t-3xl p-5 sm:p-6 max-h-[82vh] overflow-y-auto flex flex-col gap-4">
+            
+            {{-- Handle Bar for Swipe / Toggle --}}
+            <div id="sheetHandle" class="w-14 h-1.5 bg-[#4b5265] hover:bg-orange-500 rounded-full mx-auto -mt-2 mb-1 cursor-pointer transition-colors" title="Klik untuk buka / tutup panel"></div>
+
+            {{-- PEEK HEADER (Always Visible in Peek Mode) --}}
+            <div class="flex items-center justify-between gap-3 pb-3 border-b border-[#333846] cursor-pointer" id="peekHeader">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <span id="gpsQualityBadge" class="rounded-xl bg-amber-500/20 border border-amber-500/40 px-3 py-1 text-xs font-black text-amber-300 uppercase">Menunggu GPS</span>
+                    <span id="routeMeta" class="text-xs font-semibold text-slate-400 truncate">Menunggu data tugas...</span>
+                </div>
+                <button type="button" id="toggleSheetBtn" class="text-xs font-bold text-orange-400 hover:text-orange-300 px-2.5 py-1 rounded-lg bg-[#242832] border border-[#333846]">
+                    <span id="toggleSheetIcon">▼ Ringkas</span>
+                </button>
+            </div>
+
+            {{-- EXPANDABLE CONTENT (GPS Details, Active Assignment, History & Tactical Controls) --}}
+            <div id="sheetContent" class="space-y-4">
+                
+                {{-- 1. ACTIVE ASSIGNMENT ALERT (OR STANDBY STATUS) --}}
+                <div id="assignmentPanel" class="rounded-2xl border {{ $activeAssignment ? 'border-red-500/50 bg-red-500/15' : 'border-emerald-500/30 bg-emerald-500/10' }} p-4 shadow-lg transition-all">
+                    @if($activeAssignment)
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-red-600 px-2.5 py-0.5 text-[10px] font-black uppercase text-white animate-pulse">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-white animate-ping"></span> TUGAS DARURAT AKTIF
+                                </span>
+                                <span class="text-[10px] font-mono font-bold text-red-300">{{ $activeAssignment->report->tracking_code }}</span>
                             </div>
-                            <a href="{{ route('member.assignments.show', $activeAssignment) }}" class="rounded-xl bg-red-600 px-5 py-3 text-center font-black text-white">Buka mode tugas</a>
+                            <div>
+                                <h2 class="text-xl font-black text-white">{{ $activeAssignment->report->incident_type }}</h2>
+                                <p class="text-xs font-semibold text-slate-300 mt-0.5">Segera buka mode navigasi tugas untuk pengarahan rute lapangan.</p>
+                            </div>
+                            <a href="{{ route('member.assignments.show', $activeAssignment) }}" class="block w-full rounded-xl bg-gradient-to-r from-orange-600 via-amber-600 to-red-600 py-3.5 text-center text-xs font-black uppercase tracking-wider text-white shadow-lg shadow-orange-500/30 hover:brightness-110 transition-all">
+                                🚀 BUKA MODE TUGAS & NAVIGASI &rarr;
+                            </a>
                         </div>
                     @else
-                        <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                            <div class="max-w-3xl">
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <span class="rounded-full bg-emerald-600 px-3 py-1 text-xs font-black uppercase tracking-wide text-white">Standby posko</span>
-                                    <span class="rounded-full bg-white px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-700">Belum ada tugas aktif</span>
-                                </div>
-                                <h2 class="mt-2 text-2xl font-black">Tidak sedang bertugas</h2>
-                                <p class="mt-1 text-sm font-semibold text-slate-600">Tetap biarkan halaman ini terbuka agar GPS dan status online terkirim ke posko.</p>
+                        <div class="flex items-center gap-3">
+                            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-emerald-500/20 text-emerald-400 font-black text-lg border border-emerald-500/30">
+                                📡
+                            </span>
+                            <div>
+                                <h2 class="text-sm font-black text-emerald-300">Standby & Siaga Posko</h2>
+                                <p class="text-xs font-medium text-slate-400">Belum ada penugasan darurat aktif. Tetap biarkan aplikasi terbuka.</p>
                             </div>
                         </div>
                     @endif
                 </div>
 
-                <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                    <div class="border-b border-slate-200 px-5 py-4">
-                        <h2 class="text-xl font-black">Peta tugas</h2>
-                        <p id="routeMeta" class="text-sm text-slate-500">Menunggu data tugas dan GPS petugas.</p>
+                {{-- 2. TACTICAL GPS & NETWORK STATS --}}
+                <div class="rounded-2xl bg-[#242832] border border-[#333846] p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Status Sensor GPS</span>
+                        <span id="gpsStatus" class="text-xs font-black text-orange-400">Mengaktifkan GPS...</span>
                     </div>
-                    <div id="memberMap" class="h-[520px] md:h-[680px]"></div>
-                </div>
-            </div>
-
-            <aside class="space-y-5">
-                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <p class="text-xs font-black uppercase text-slate-500">Perangkat</p>
-                            <h2 class="mt-1 text-xl font-black">Status GPS</h2>
+                    <div class="grid grid-cols-3 gap-2 pt-1 border-t border-[#333846]">
+                        <div class="bg-[#181a20] rounded-xl p-2.5 text-center border border-[#333846]/60">
+                            <p class="text-[9px] font-black uppercase text-slate-500">Akurasi</p>
+                            <p id="accuracyValue" class="mt-0.5 text-xs font-black text-white">-</p>
+                        </div>
+                        <div class="bg-[#181a20] rounded-xl p-2.5 text-center border border-[#333846]/60">
+                            <p class="text-[9px] font-black uppercase text-slate-500">Terkirim</p>
+                            <p id="lastSentValue" class="mt-0.5 text-xs font-black text-white">-</p>
+                        </div>
+                        <div class="bg-[#181a20] rounded-xl p-2.5 text-center border border-[#333846]/60">
+                            <p class="text-[9px] font-black uppercase text-slate-500">Jaringan</p>
+                            <p id="networkStatus" class="mt-0.5 text-xs font-black text-white">-</p>
                         </div>
                     </div>
-                    <p id="gpsStatus" class="mt-4 rounded-xl bg-slate-50 p-4 font-black text-slate-900">Mengaktifkan GPS...</p>
-
-                    <div class="mt-3 grid grid-cols-3 gap-2">
-                        <div class="rounded-xl border border-slate-200 p-3">
-                            <p class="text-[11px] font-black uppercase text-slate-500">Akurasi</p>
-                            <p id="accuracyValue" class="mt-1 font-black">-</p>
-                        </div>
-                        <div class="rounded-xl border border-slate-200 p-3">
-                            <p class="text-[11px] font-black uppercase text-slate-500">Terkirim</p>
-                            <p id="lastSentValue" class="mt-1 font-black">-</p>
-                        </div>
-                        <div class="rounded-xl border border-slate-200 p-3">
-                            <p class="text-[11px] font-black uppercase text-slate-500">Jaringan</p>
-                            <p id="networkStatus" class="mt-1 font-black">-</p>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 grid gap-2">
-                        <button id="wakeLockButton" type="button" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-black text-slate-800">
-                            Jaga layar tetap aktif
-                        </button>
-                        <button id="notificationButton" type="button" class="w-full rounded-xl border border-red-200 bg-white px-4 py-3 text-sm font-black text-red-700">
-                            Aktifkan notifikasi tugas
-                        </button>
-                    </div>
-                    <p id="deviceStatus" class="mt-3 text-xs font-semibold text-slate-500">GPS dikirim tiap 5 detik. Saat bertugas, aktifkan layar tetap aktif.</p>
                 </div>
 
-                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <div class="flex items-center justify-between gap-3">
-                        <div>
-                            <h2 class="text-xl font-black">Riwayat tugas saya</h2>
-                            <p class="mt-1 text-xs font-semibold text-slate-500">Hanya menampilkan tugas yang ditugaskan ke akun ini.</p>
-                        </div>
-                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-600">{{ $recentAssignments->count() }}</span>
+                {{-- 3. TACTICAL CONTROLS (WAKELOCK & NOTIF) --}}
+                <div class="grid grid-cols-2 gap-2.5">
+                    <button id="wakeLockButton" type="button" class="w-full rounded-xl bg-[#242832] hover:bg-[#2c303d] border border-[#333846] px-3 py-2.5 text-xs font-bold text-slate-200 transition-all flex items-center justify-center gap-1.5">
+                        <span>💡</span> <span>Layar Aktif</span>
+                    </button>
+                    <button id="notificationButton" type="button" class="w-full rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 px-3 py-2.5 text-xs font-bold text-red-400 transition-all flex items-center justify-center gap-1.5">
+                        <span>🔔</span> <span>Notif Alarm</span>
+                    </button>
+                </div>
+                <p id="deviceStatus" class="text-[11px] text-center font-medium text-slate-500">GPS otomatis dikirim ke posko tiap 5 detik.</p>
+
+                {{-- 4. RECENT ASSIGNMENTS HISTORY --}}
+                <div class="pt-2 border-t border-[#333846] space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-black uppercase tracking-wider text-slate-400">Riwayat Tugas Saya</h3>
+                        <span class="rounded-full bg-[#242832] px-2 py-0.5 text-[10px] font-bold text-slate-400">{{ $recentAssignments->count() }}</span>
                     </div>
-                    <div class="mt-4 space-y-3">
+                    <div class="space-y-2 max-h-40 overflow-y-auto pr-1">
                         @forelse($recentAssignments as $assignmentItem)
-                            <div class="rounded-xl border border-slate-200 p-4">
-                                <div class="flex items-start justify-between gap-3">
-                                    <div class="min-w-0">
-                                        <p class="truncate font-black">{{ $assignmentItem->report->incident_type }}</p>
-                                        <p class="mt-1 text-sm text-slate-500">{{ $assignmentItem->report->tracking_code }}</p>
-                                    </div>
-                                    <span class="shrink-0 rounded-full px-2 py-1 text-[10px] font-black uppercase {{ in_array($assignmentItem->status, ['completed', 'cancelled'], true) ? 'bg-slate-100 text-slate-600' : 'bg-red-50 text-red-700' }}">
-                                        {{ \App\Http\Controllers\PublicTrackingController::assignmentLabel($assignmentItem->status) }}
-                                    </span>
+                            <div class="rounded-xl bg-[#242832] border border-[#333846] p-3 flex items-center justify-between gap-3">
+                                <div class="min-w-0">
+                                    <p class="text-xs font-bold text-white truncate">{{ $assignmentItem->report->incident_type }}</p>
+                                    <p class="text-[10px] text-slate-400">{{ $assignmentItem->report->tracking_code }}</p>
                                 </div>
-                                @unless(in_array($assignmentItem->status, ['completed', 'cancelled'], true))
-                                    <a href="{{ route('member.assignments.show', $assignmentItem) }}" class="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-red-600 px-3 py-2 text-xs font-black text-white">
-                                        Buka mode tugas
-                                    </a>
-                                @endunless
+                                <span class="shrink-0 rounded-lg px-2 py-1 text-[9px] font-black uppercase {{ in_array($assignmentItem->status, ['completed', 'cancelled'], true) ? 'bg-[#181a20] text-slate-500 border border-[#333846]' : 'bg-red-500/20 text-red-400 border border-red-500/30' }}">
+                                    {{ \App\Http\Controllers\PublicTrackingController::assignmentLabel($assignmentItem->status) }}
+                                </span>
                             </div>
                         @empty
-                            <p class="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">Belum ada tugas untuk akun ini.</p>
+                            <p class="rounded-xl bg-[#242832] p-3 text-xs text-center text-slate-500">Belum ada riwayat tugas.</p>
                         @endforelse
                     </div>
                 </div>
-            </aside>
+
+            </div>
         </div>
-    </section>
+    </div>
 
     @push('scripts')
         <script>

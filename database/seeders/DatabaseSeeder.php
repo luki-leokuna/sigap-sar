@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $admin = User::query()->firstOrCreate(
-            ['email' => 'admin@timsar.test'],
+            ['email' => 'admin@timsar.com'],
             [
                 'name' => 'Admin Posko TIMSAR',
                 'password' => 'password',
@@ -30,11 +30,15 @@ class DatabaseSeeder extends Seeder
         );
 
         $members = [
-            ['Andi Pratama', 'andi@timsar.test', '081222222201', -8.583350, 116.095780, 'wifi'],
-            ['Budi Santoso', 'budi@timsar.test', '081222222202', -8.588900, 116.117210, '4g'],
-            ['Sari Wulandari', 'sari@timsar.test', '081222222203', -8.573650, 116.103300, '4g'],
-            ['Raka Mahendra', 'raka@timsar.test', '081222222204', -8.607420, 116.085700, 'unknown'],
-            ['Nadia Lestari', 'nadia@timsar.test', '081222222205', -8.548500, 116.071900, 'wifi'],
+            ['Helmy', 'Helmy@timsar.com', '081222222201', -8.583350, 116.095780, 'wifi'],
+            ['Haqi', 'haqi@timsar.com', '081222222202', -8.588900, 116.117210, '4g'],
+            ['Ghina', 'ghina@timsar.com', '081222222203', -8.573650, 116.103300, '4g'],
+            ['Lidia', 'lidia@timsar.com', '081222222204', -8.607420, 116.085700, 'unknown'],
+            ['Merlin', 'merlin@timsar.com', '081222222205', -8.548500, 116.071900, 'wifi'],
+            ['Luki', 'luki@timsar.com', '081222222206', -8.548500, 116.071900, 'wifi'],
+            ['Tika', 'tika@timsar.com', '081222222207', -8.548500, 116.071900, 'wifi'],
+            ['Dina', 'dina@timsar.com', '081222222208', -8.548500, 116.071900, 'wifi'],
+            ['Desi', 'desi@timsar.com', '081222222209', -8.548500, 116.071900, 'wifi'],
         ];
 
         $createdMembers = collect($members)->map(function (array $data): User {

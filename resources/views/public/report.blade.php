@@ -1,419 +1,325 @@
-<x-layouts.app title="Lapor Darurat TIMSAR">
-
+<x-layouts.app title="Lapor Darurat TIMSAR" :hideChrome="true" :fullBleed="true">
     @push('scripts')
         <style>
-            /* ── Animations ── */
-            @keyframes fadeUp {
-                from { opacity: 0; transform: translateY(8px); }
-                to   { opacity: 1; transform: translateY(0); }
+            /* ── Maxim Theme Aesthetics ── */
+            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+            
+            body, .timsar-maxim-app {
+                font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
+                background-color: #181a20 !important;
+                color: #e2e8f0 !important;
             }
-            @keyframes bounce-dot {
-                0%, 80%, 100% { transform: scale(0); }
-                40%            { transform: scale(1); }
+            
+            /* Custom Scrollbar for Dark Mode */
+            ::-webkit-scrollbar { width: 6px; height: 6px; }
+            ::-webkit-scrollbar-track { background: #181a20; }
+            ::-webkit-scrollbar-thumb { background: #333846; border-radius: 4px; }
+            ::-webkit-scrollbar-thumb:hover { background: #4b5265; }
+
+            /* Maxim Card Pill Style */
+            .maxim-input-card {
+                background: #242832;
+                border: 1px solid #333846;
+                border-radius: 1.25rem;
+                padding: 1rem 1.25rem;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             }
-
-            .fade-up { animation: fadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
-            .delay-1 { animation-delay: .05s; }
-
-            /* ── Custom select wrapper ── */
-            .custom-select-wrapper { position: relative; }
-            .custom-select-wrapper .select-trigger {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
+            .maxim-input-card:focus-within {
+                border-color: #f97316;
+                box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15), 0 8px 20px rgba(0, 0, 0, 0.3);
+            }
+            
+            .maxim-input {
+                background: transparent;
+                border: none;
                 width: 100%;
-                padding: 0.75rem 0.875rem;
-                border-radius: 0.5rem;
-                border: 1px solid #cbd5e1;
-                background: #fff;
-                cursor: pointer;
-                user-select: none;
-                transition: all 0.15s ease;
-                font-size: 0.875rem;
-                font-weight: 500;
-                color: #334155;
-            }
-            .custom-select-wrapper .select-trigger:hover,
-            .custom-select-wrapper.open .select-trigger {
-                border-color: #dc2626;
-                box-shadow: 0 0 0 2.5px rgba(220, 38, 38, 0.08);
-            }
-            .custom-select-wrapper .select-arrow {
-                margin-left: auto;
-                transition: transform 0.2s;
-                color: #64748b;
-            }
-            .custom-select-wrapper.open .select-arrow { transform: rotate(180deg); }
-
-            .custom-select-wrapper .select-dropdown {
-                position: absolute;
-                top: calc(100% + 4px);
-                left: 0; right: 0;
-                background: #fff;
-                border: 1px solid #cbd5e1;
-                border-radius: 0.5rem;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-                max-height: 220px;
-                overflow-y: auto;
-                z-index: 50;
-                opacity: 0;
-                transform: translateY(-4px) scale(.99);
-                pointer-events: none;
-                transition: opacity 0.15s, transform 0.15s ease;
-            }
-            .custom-select-wrapper.open .select-dropdown {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-                pointer-events: auto;
-            }
-            .custom-select-wrapper .select-option {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                padding: 0.625rem 0.875rem;
-                cursor: pointer;
-                font-size: 0.875rem;
-                font-weight: 500;
-                color: #475569;
-                transition: background 0.1s ease;
-            }
-            .custom-select-wrapper .select-option:hover  { background: #fef2f2; color: #dc2626; }
-            .custom-select-wrapper .select-option.active { background: #fef2f2; color: #dc2626; }
-
-            /* ── Inputs & Labels ── */
-            .form-input {
-                width: 100%;
-                padding: 0.75rem 0.875rem;
-                border-radius: 0.5rem;
-                border: 1px solid #cbd5e1;
-                font-size: 0.875rem;
-                font-weight: 500;
-                color: #1e293b;
-                background: #fff;
-                transition: all 0.15s ease;
+                color: #ffffff;
+                font-weight: 700;
+                font-size: 0.95rem;
                 outline: none;
             }
-            .form-input:focus {
-                border-color: #dc2626;
-                box-shadow: 0 0 0 2.5px rgba(220, 38, 38, 0.08);
-            }
-            .form-input.is-valid {
-                border-color: #10b981;
-                background-color: #f0fdf4;
-            }
-            .form-label {
-                display: block;
-                font-size: 0.75rem;
-                font-weight: 700;
-                color: #475569;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                margin-bottom: 0.375rem;
+            .maxim-input::placeholder {
+                color: #64748b;
+                font-weight: 500;
             }
 
-            /* ── Step Tracker ── */
-            .step-dot {
-                width: 1.125rem;
-                height: 1.125rem;
-                border-radius: 9999px;
+            /* Incident Grid Item */
+            .incident-card {
+                background: #242832;
+                border: 1.5px solid #333846;
+                border-radius: 1rem;
+                padding: 0.875rem 0.5rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
                 display: flex;
+                flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                font-size: 0.65rem;
-                font-weight: 800;
-                transition: all 0.2s ease;
+                gap: 0.5rem;
+                user-select: none;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            }
+            .incident-card:hover {
+                background: #2c303d;
+                border-color: #4b5265;
+                transform: translateY(-2px);
+            }
+            .incident-card.active {
+                background: rgba(249, 115, 22, 0.15) !important;
+                border-color: #f97316 !important;
+                color: #ff8a00 !important;
+                box-shadow: 0 0 16px rgba(249, 115, 22, 0.25);
+            }
+            .incident-card.active span.title {
+                color: #ffffff !important;
             }
 
-            /* ── Locate Button ── */
-            #locateBtn {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.375rem;
-                border-radius: 0.5rem;
-                padding: 0.5rem 0.875rem;
-                font-size: 0.825rem;
-                font-weight: 700;
-                color: #fff;
-                background: #1e293b;
-                transition: all 0.15s ease;
-                border: none;
-                cursor: pointer;
-            }
-            #locateBtn:hover:not(:disabled) {
-                background: #334155;
-            }
-            #locateBtn.state-loading  { background: #d97706; }
-            #locateBtn.state-ready    { background: #059669; }
-            #locateBtn.state-error    { background: #dc2626; }
-
-            /* ── Loading Spinner for Submit ── */
-            .dot-loader span {
-                display: inline-block;
-                width: 4px; height: 4px;
-                margin: 0 1px;
-                border-radius: 50%;
-                background: currentColor;
-                animation: bounce-dot 1.4s infinite ease-in-out both;
-            }
-            .dot-loader span:nth-child(1) { animation-delay: -.32s; }
-            .dot-loader span:nth-child(2) { animation-delay: -.16s; }
-
-            /* ── Submit Button ── */
+            /* Basarnas Orange Button */
             #submitBtn {
-                width: 100%;
-                padding: 0.75rem 1.25rem;
-                border-radius: 0.5rem;
-                font-size: 0.875rem;
-                font-weight: 700;
+                background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #dc2626 100%);
+                color: #ffffff;
+                font-weight: 900;
+                border-radius: 1.25rem;
+                padding: 1.15rem 1.5rem;
+                box-shadow: 0 10px 25px -5px rgba(234, 88, 12, 0.4);
                 transition: all 0.2s ease;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 0.375rem;
-                cursor: pointer;
-                border: none;
+                border: 1px solid rgba(255, 255, 255, 0.15);
             }
-            #submitBtn.gps-pending-state {
-                background: #ea580c;
-                color: #fff;
+            #submitBtn:hover:not(:disabled) {
+                filter: brightness(1.1);
+                box-shadow: 0 15px 30px -5px rgba(234, 88, 12, 0.5);
+                transform: translateY(-1px);
             }
-            #submitBtn.gps-pending-state:hover {
-                background: #c2410c;
-            }
-            #submitBtn.ready-state {
-                background: #dc2626;
-                color: #fff;
-            }
-            #submitBtn.ready-state:hover {
-                background: #b91c1c;
+            #submitBtn:active:not(:disabled) {
+                transform: scale(0.98);
             }
             #submitBtn.disabled-state {
-                background: #e2e8f0;
-                color: #94a3b8;
+                background: #333846 !important;
+                color: #64748b !important;
+                box-shadow: none !important;
                 cursor: not-allowed;
             }
 
-            /* ── GPS Status Alert card ── */
-            .gps-status-card {
-                border-radius: 0.375rem;
-                padding: 0.625rem 0.75rem;
-                font-size: 0.8rem;
-                font-weight: 500;
-                transition: all 0.2s ease;
+            /* Map styling in dark mode */
+            #map {
+                border-radius: 1rem;
+                filter: contrast(1.05) saturate(1.1);
             }
-            .gps-idle    { background:#f8fafc; color:#64748b; border: 1px solid #e2e8f0; }
-            .gps-loading { background:#fffbeb; color:#92400e; border: 1px solid #fde68a; }
-            .gps-ready   { background:#f0fdf4; color:#065f46; border: 1px solid #a7f3d0; }
-            .gps-warning { background:#fefce8; color:#854d0e; border: 1px solid #fef08a; }
-            .gps-error   { background:#fef2f2; color:#991b1b; border: 1px solid #fecaca; }
         </style>
     @endpush
 
-    <div class="mx-auto max-w-6xl px-4 py-6 sm:py-10">
-
-        {{-- Tactical Header --}}
-        <div class="mb-8 text-center sm:text-left flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-slate-200/80">
-            <div>
-                <span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs font-black uppercase tracking-wider text-red-700 border border-red-200 shadow-sm"><span class="h-2 w-2 rounded-full bg-red-500 animate-ping"></span> EMERGENCY DISPATCH PORTAL</span>
-                <h1 class="mt-2 text-2xl sm:text-4xl font-black tracking-tight text-slate-900">
-                    Formulir Pelaporan Darurat SAR
-                </h1>
-                <p class="text-xs sm:text-sm text-slate-600 font-semibold mt-1">
-                    Sistem akan melacak posisi koordinat GPS perangkat Anda secara presisi untuk pengarahan tim rescue tercepat.
-                </p>
-            </div>
-            <div class="flex items-center justify-center sm:justify-end gap-3">
-                <div class="rounded-2xl bg-white border border-slate-200/80 px-4 py-2 text-center shadow-sm">
-                    <span class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Jalur Prioritas</span>
-                    <span class="text-sm font-black text-orange-600">SIAGA 24 JAM</span>
+    <div class="timsar-maxim-app min-h-screen bg-[#181a20] text-slate-100 flex flex-col justify-between pb-12">
+        
+        {{-- Maxim-Style Top Navigation Bar --}}
+        <header class="sticky top-0 z-50 bg-[#181a20]/95 backdrop-blur-md border-b border-[#242832] px-4 sm:px-8 py-4">
+            <div class="mx-auto max-w-4xl flex items-center justify-between">
+                <a href="{{ route('public.report') }}" class="flex items-center gap-2 group">
+                    <span class="font-black text-2xl tracking-tighter text-white flex items-center">
+                        s i g<span class="inline-flex items-center justify-center mx-0.5 h-6 w-6 rounded-full bg-red-600/20 text-red-500 border-2 border-red-500 animate-pulse text-xs">⭕</span>p
+                    </span>
+                    <span class="text-xs font-bold uppercase tracking-widest bg-orange-500 text-black px-2 py-0.5 rounded font-mono ml-1">SAR</span>
+                </a>
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('login') }}" class="inline-flex items-center gap-2 rounded-xl bg-[#242832] border border-[#333846] px-4 py-2 text-xs font-extrabold text-slate-200 hover:bg-[#2c303d] hover:text-white transition-all shadow-sm">
+                        <svg class="w-3.5 h-3.5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+                        <span>Login Posko</span>
+                    </a>
                 </div>
             </div>
-        </div>
+        </header>
 
-        {{-- ── FORM CARD (2-Column Grid on Desktop) ── --}}
-        <form
-            method="POST"
-            action="{{ route('public.report.store') }}"
-            class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
-            id="reportForm"
-            novalidate
-        >
-            @csrf
+        {{-- Main Maxim Content Container --}}
+        <main class="mx-auto max-w-4xl w-full px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+            
+            {{-- Title Banner --}}
+            <div class="text-center sm:text-left">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-extrabold mb-2">
+                    <span class="h-2 w-2 rounded-full bg-orange-500 animate-ping"></span>
+                    <span>DISPATCH PORTAL BASARNAS 24 JAM</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Panggilan Darurat & Evakuasi</h1>
+                <p class="text-xs sm:text-sm font-medium text-slate-400 mt-1">Lengkapi informasi di bawah. Posisi GPS Anda terdeteksi otomatis untuk tim rescue terdekat.</p>
+            </div>
 
-            {{-- Left Column: GPS & Interactive Map Container (5 Cols) --}}
-            <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-xl space-y-5">
-                    
-                    <div class="flex items-center justify-between border-b border-slate-200/80 pb-4" id="step2">
-                        <div class="flex items-center gap-2.5">
-                            <span class="step-dot bg-slate-100 text-slate-700 border border-slate-300 font-black text-xs h-7 w-7 rounded-xl flex items-center justify-center" id="stepNum2">2</span>
-                            <div>
-                                <h3 class="text-sm font-black text-slate-900">Penentuan Titik Koordinat</h3>
-                                <p class="text-[11px] font-semibold text-slate-500">Akurasi GPS menentukan kecepatan respon</p>
-                            </div>
-                        </div>
+            <form method="POST" action="{{ route('public.report.store') }}" id="reportForm" class="space-y-6" novalidate>
+                @csrf
+
+                {{-- 1. LOCATION BAR (Maxim Style "Lokasi penjemputan") --}}
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between px-1">
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5" id="step2">
+                            <span class="h-2 w-2 rounded-full bg-red-500" id="stepNum2"></span>
+                            1. Titik Koordinat Lokasi Darurat
+                        </span>
+                        <span id="locationBadge" class="rounded px-2 py-0.5 text-[10px] font-black bg-slate-700 text-slate-300 uppercase tracking-wide">BELUM AKTIF</span>
                     </div>
 
-                    {{-- GPS & Map Section --}}
-                    <div class="rounded-2xl border border-slate-200/80 bg-slate-50 p-4 transition-all duration-300 space-y-4" id="locationSection">
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                            <div class="flex-1 min-w-0">
-                                <span id="locationBadge" class="rounded-md px-2 py-0.5 text-[10px] font-black bg-slate-200 text-slate-700 uppercase tracking-wide border border-slate-300 inline-block">GPS BELUM AKTIF</span>
-                                <p id="locationText" class="mt-1.5 text-xs font-semibold text-slate-600">
-                                    Tekan tombol untuk mendeteksi koordinat Anda saat ini.
-                                </p>
+                    <div class="maxim-input-card !p-3.5 sm:!p-4" id="locationSection">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="flex items-center gap-3.5 min-w-0">
+                                <span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-red-500/15 border border-red-500/30 text-red-500 font-black text-lg shadow-inner">
+                                    ⭕
+                                </span>
+                                <div class="min-w-0">
+                                    <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Lokasi Kejadian <span class="text-orange-500">*</span></div>
+                                    <div id="locationText" class="text-sm sm:text-base font-extrabold text-white truncate mt-0.5">Tekan tombol untuk mendeteksi koordinat GPS</div>
+                                </div>
                             </div>
-                            <button type="button" id="locateBtn" class="w-full sm:w-auto rounded-xl bg-orange-600 px-4 py-2.5 text-xs font-black text-white shadow-md shadow-orange-500/20 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <button type="button" id="locateBtn" class="w-full sm:w-auto rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-95 px-5 py-3 text-xs font-black text-white shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2 shrink-0">
                                 <svg id="locateIcon" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
                                 <span id="locateBtnText">Ambil Lokasi Saya</span>
                             </button>
                         </div>
 
-                        <div id="locationHint" class="gps-status-card gps-idle flex items-start gap-2 rounded-xl bg-white border border-slate-200/80 p-3 text-xs font-semibold text-slate-700 shadow-sm">
-                            <svg class="mt-0.5 h-4 w-4 shrink-0 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
+                        {{-- GPS Status Hint --}}
+                        <div id="locationHint" class="mt-3.5 hidden rounded-xl bg-[#1e222b] border border-[#333846] p-3 text-xs font-semibold text-slate-300 flex items-center gap-2">
                             <span id="locationHintText">Rekomendasi: aktifkan GPS perangkat Anda untuk akurasi terbaik.</span>
                         </div>
 
-                        <div id="map" class="h-56 sm:h-64 rounded-2xl border border-slate-200/80 overflow-hidden shadow-inner"></div>
-                    </div>
-
-                    {{-- Hidden Inputs --}}
-                    <input type="hidden" name="latitude"  id="latitude">
-                    <input type="hidden" name="longitude" id="longitude">
-                    <input type="hidden" name="accuracy"  id="accuracy">
-                    
-                    <div id="reportSummary" class="hidden rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-xs text-emerald-800 space-y-2 shadow-sm">
-                        <div class="font-black flex items-center gap-1.5 text-emerald-700">
-                            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span>DATA KOORDINAT SIAP DIKIRIM</span>
+                        {{-- Map Container --}}
+                        <div class="mt-4 rounded-xl overflow-hidden border border-[#333846] h-52 sm:h-64 relative shadow-inner">
+                            <div id="map" class="h-full w-full"></div>
                         </div>
-                        <div class="grid grid-cols-3 gap-2 pt-1 border-t border-emerald-200 font-mono">
-                            <div>
-                                <div class="text-[9px] font-bold text-emerald-600 uppercase">Nomor HP</div>
-                                <div id="summaryPhone" class="font-black truncate">-</div>
-                            </div>
-                            <div>
-                                <div class="text-[9px] font-bold text-emerald-600 uppercase">Koordinat</div>
-                                <div id="summaryLocation" class="font-black truncate">-</div>
-                            </div>
-                            <div>
-                                <div class="text-[9px] font-bold text-emerald-600 uppercase">Akurasi</div>
-                                <div id="summaryAccuracy" class="font-black">-</div>
-                            </div>
+
+                        {{-- Hidden GPS Inputs --}}
+                        <input type="hidden" name="latitude" id="latitude">
+                        <input type="hidden" name="longitude" id="longitude">
+                        <input type="hidden" name="accuracy" id="accuracy">
+
+                        {{-- Summary Pill --}}
+                        <div id="reportSummary" class="hidden mt-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-3 text-xs text-emerald-300 grid grid-cols-3 gap-2 text-center font-mono">
+                            <div><span class="block text-[9px] text-slate-400">HP</span><span id="summaryPhone" class="font-bold truncate">-</span></div>
+                            <div><span class="block text-[9px] text-slate-400">KOORDINAT</span><span id="summaryLocation" class="font-bold truncate">-</span></div>
+                            <div><span class="block text-[9px] text-slate-400">AKURASI</span><span id="summaryAccuracy" class="font-bold">-</span></div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {{-- Right Column: Incident Data Form (7 Cols) --}}
-            <div class="lg:col-span-7">
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xl space-y-6">
-                    
-                    <div class="flex items-center justify-between border-b border-slate-200/80 pb-4" id="step1">
-                        <div class="flex items-center gap-2.5">
-                            <span class="step-dot bg-slate-100 text-slate-700 border border-slate-300 font-black text-xs h-7 w-7 rounded-xl flex items-center justify-center" id="stepNum1">1</span>
-                            <div>
-                                <h3 class="text-sm font-black text-slate-900">Detail Informasi Kejadian</h3>
-                                <p class="text-[11px] font-semibold text-slate-500">Lengkapi data pelapor dan situasi insiden</p>
+                {{-- 2. REPORTER INFO (Maxim Style Stacked Bars) --}}
+                <div class="space-y-3">
+                    <span class="text-xs font-black text-slate-400 uppercase tracking-wider px-1 flex items-center gap-1.5" id="step1">
+                        <span class="h-2 w-2 rounded-full bg-blue-500" id="stepNum1"></span>
+                        2. Identitas Pelapor Darurat
+                    </span>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {{-- Nama --}}
+                        <div class="maxim-input-card flex items-center gap-3.5">
+                            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-blue-500/15 border border-blue-500/30 text-blue-400 font-black text-lg">
+                                👤
+                            </span>
+                            <div class="flex-1 min-w-0">
+                                <label for="reporter_name" class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Nama Lengkap <span class="text-orange-500">*</span></label>
+                                <input id="reporter_name" name="reporter_name" type="text" value="{{ old('reporter_name') }}" placeholder="Ketik nama Anda" class="maxim-input mt-0.5" required>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="space-y-5">
-                        {{-- Nama Pelapor & Nomor HP --}}
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div>
-                                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-2" for="reporter_name">Nama Pelapor <span class="text-orange-600">*</span></label>
-                                <input
-                                    id="reporter_name"
-                                    name="reporter_name"
-                                    type="text"
-                                    value="{{ old('reporter_name') }}"
-                                    placeholder="Nama lengkap Anda"
-                                    class="form-input w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-900 focus:border-orange-500 focus:bg-white focus:outline-none transition-all shadow-sm"
-                                    required
-                                >
-                            </div>
-                            <div>
-                                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-2" for="reporter_phone">Nomor HP / WhatsApp <span class="text-orange-600">*</span></label>
-                                <input
-                                    id="reporter_phone"
-                                    name="reporter_phone"
-                                    type="tel"
-                                    value="{{ old('reporter_phone') }}"
-                                    placeholder="Contoh: 081234567890"
-                                    inputmode="tel"
-                                    autocomplete="tel"
-                                    maxlength="17"
-                                    aria-describedby="phoneHelp"
-                                    class="form-input w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-900 focus:border-orange-500 focus:bg-white focus:outline-none transition-all shadow-sm @error('reporter_phone') border-red-500 @enderror"
-                                    required
-                                >
-                                <p id="phoneHelp" class="mt-1.5 text-[11px] font-semibold text-slate-500">Gunakan format 08 atau +62 untuk nomor aktif.</p>
+                        {{-- Nomor HP --}}
+                        <div class="maxim-input-card flex items-start gap-3.5">
+                            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-black text-lg mt-0.5">
+                                📞
+                            </span>
+                            <div class="flex-1 min-w-0">
+                                <label for="reporter_phone" class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Nomor HP / WhatsApp <span class="text-orange-500">*</span></label>
+                                <input id="reporter_phone" name="reporter_phone" type="tel" value="{{ old('reporter_phone') }}" placeholder="08xxxxxxxxxx" inputmode="tel" autocomplete="tel" maxlength="17" class="maxim-input mt-0.5" required>
+                                <p id="phoneHelp" class="mt-1 text-[11px] font-medium text-slate-500">Nomor aktif untuk dihubungi tim rescue.</p>
                                 @error('reporter_phone')
-                                    <p class="mt-1 text-xs font-bold text-red-500">{{ $message }}</p>
+                                    <p class="mt-1 text-xs font-bold text-red-400">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
-
-                        {{-- Jenis Kejadian & Tingkat Prioritas --}}
-                        <div>
-                            <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-2">Jenis Kejadian Darurat <span class="text-orange-600">*</span></label>
-                            <div class="custom-select-wrapper relative" id="incidentWrapper">
-                                <div class="select-trigger flex items-center justify-between w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-bold text-slate-900 cursor-pointer hover:border-orange-500 transition-all shadow-sm" id="incidentTrigger">
-                                    <div class="flex items-center gap-2.5">
-                                        <span id="incidentIcon" class="grid h-6 w-6 place-items-center rounded-lg bg-orange-100 text-orange-600 font-black text-xs">!</span>
-                                        <span id="incidentLabel">Pilih klasifikasi insiden darurat</span>
-                                    </div>
-                                    <svg class="select-arrow h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
-                                </div>
-                                <div class="select-dropdown absolute left-0 right-0 top-full mt-2 rounded-2xl border border-slate-200/80 bg-white shadow-2xl p-2 z-50 space-y-1" id="incidentDropdown">
-                                    <div class="select-option flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer transition-all" data-value="Kecelakaan" data-icon="💥"><span class="grid h-6 w-6 place-items-center rounded-lg bg-red-100 text-red-600 text-xs font-black">💥</span> Kecelakaan Lalu Lintas / Transportasi</div>
-                                    <div class="select-option flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer transition-all" data-value="Orang hilang" data-icon="🔍"><span class="grid h-6 w-6 place-items-center rounded-lg bg-amber-100 text-amber-600 text-xs font-black">🔍</span> Orang Hilang / Tersesat</div>
-                                    <div class="select-option flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer transition-all" data-value="Pendaki cedera" data-icon="⛰️"><span class="grid h-6 w-6 place-items-center rounded-lg bg-orange-100 text-orange-600 text-xs font-black">⛰️</span> Pendaki Cedera / Evakuasi Hutan</div>
-                                    <div class="select-option flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer transition-all" data-value="Banjir" data-icon="🌊"><span class="grid h-6 w-6 place-items-center rounded-lg bg-blue-100 text-blue-600 text-xs font-black">🌊</span> Banjir / Bencana Alam Perairan</div>
-                                    <div class="select-option flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer transition-all" data-value="Kebakaran" data-icon="🔥"><span class="grid h-6 w-6 place-items-center rounded-lg bg-red-100 text-red-600 text-xs font-black">🔥</span> Kebakaran / Situasi Berbahaya</div>
-                                    <div class="select-option flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer transition-all" data-value="Lainnya" data-icon="🚨"><span class="grid h-6 w-6 place-items-center rounded-lg bg-purple-100 text-purple-600 text-xs font-black">🚨</span> Situasi Darurat Lainnya</div>
-                                </div>
-                                <input type="hidden" name="incident_type" id="incidentValue" value="{{ old('incident_type') }}" required>
-                            </div>
-                            <input type="hidden" name="priority" value="{{ old('priority', 'high') }}">
-                        </div>
-
-                        {{-- Deskripsi Kejadian --}}
-                        <div>
-                            <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-2" for="description">Kronologi & Situasi Kejadian <span class="text-orange-600">*</span></label>
-                            <textarea
-                                id="description"
-                                name="description"
-                                rows="4"
-                                placeholder="Tulis kronologi singkat kejadian, estimasi jumlah korban, kondisi lingkungan saat ini, dan ciri-ciri khusus..."
-                                class="form-input w-full rounded-xl border border-slate-300 bg-white p-4 text-sm font-semibold text-slate-900 focus:border-orange-500 focus:bg-white focus:outline-none transition-all resize-none shadow-sm"
-                                required
-                            >{{ old('description') }}</textarea>
-                            <div class="mt-1.5 flex justify-between items-center text-[11px] font-semibold text-slate-500">
-                                <span>Informasi yang akurat membantu tim membawa peralatan yang tepat.</span>
-                                <span id="charCount" class="font-mono">0 / 2000 karakter</span>
-                            </div>
-                        </div>
-
-                        {{-- Submit Button (Panic Button Style) --}}
-                        <div class="pt-4 border-t border-slate-200/80">
-                            <button type="submit" id="submitBtn" class="gps-pending-state w-full rounded-2xl bg-gradient-to-r from-orange-600 via-amber-600 to-red-600 py-4 px-6 text-base font-black text-white shadow-md shadow-orange-500/20 hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-3">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
-                                <span id="submitBtnText">KIRIM LAPORAN DARURAT &rarr;</span>
-                            </button>
-                        </div>
                     </div>
                 </div>
 
-                {{-- Disclaimer --}}
-                <p class="mt-4 text-center text-xs font-bold text-slate-500">
-                    ⚠️ Peringatan: Penyalahgunaan sistem panggilan darurat ini dapat dikenakan sanksi hukum sesuai undang-undang yang berlaku.
-                </p>
-            </div>
+                {{-- 3. INCIDENT TYPE (Maxim Style Vehicle/Category Grid) --}}
+                <div class="space-y-3" id="incidentTrigger">
+                    <div class="flex items-center justify-between px-1">
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="h-2 w-2 rounded-full bg-orange-500"></span>
+                            3. Pilih Jenis Insiden Darurat <span class="text-orange-500">*</span>
+                        </span>
+                        <span id="incidentLabel" class="text-xs font-bold text-orange-400">Belum dipilih</span>
+                    </div>
 
-        </form>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3" id="incidentGrid">
+                        <div class="incident-card group" data-value="Kecelakaan" data-icon="💥">
+                            <span class="text-2xl sm:text-3xl group-hover:scale-110 transition-transform">💥</span>
+                            <span class="title text-xs font-extrabold text-slate-300 text-center">Kecelakaan</span>
+                        </div>
+                        <div class="incident-card group" data-value="Orang hilang" data-icon="🔍">
+                            <span class="text-2xl sm:text-3xl group-hover:scale-110 transition-transform">🔍</span>
+                            <span class="title text-xs font-extrabold text-slate-300 text-center">Orang Hilang</span>
+                        </div>
+                        <div class="incident-card group" data-value="Pendaki cedera" data-icon="⛰️">
+                            <span class="text-2xl sm:text-3xl group-hover:scale-110 transition-transform">⛰️</span>
+                            <span class="title text-xs font-extrabold text-slate-300 text-center">Pendaki Cedera</span>
+                        </div>
+                        <div class="incident-card group" data-value="Banjir" data-icon="🌊">
+                            <span class="text-2xl sm:text-3xl group-hover:scale-110 transition-transform">🌊</span>
+                            <span class="title text-xs font-extrabold text-slate-300 text-center">Banjir / Air</span>
+                        </div>
+                        <div class="incident-card group" data-value="Kebakaran" data-icon="🔥">
+                            <span class="text-2xl sm:text-3xl group-hover:scale-110 transition-transform">🔥</span>
+                            <span class="title text-xs font-extrabold text-slate-300 text-center">Kebakaran</span>
+                        </div>
+                        <div class="incident-card group" data-value="Lainnya" data-icon="🚨">
+                            <span class="text-2xl sm:text-3xl group-hover:scale-110 transition-transform">🚨</span>
+                            <span class="title text-xs font-extrabold text-slate-300 text-center">Darurat Lain</span>
+                        </div>
+                    </div>
+                    <input type="hidden" name="incident_type" id="incidentValue" value="{{ old('incident_type') }}" required>
+                    <input type="hidden" name="priority" value="{{ old('priority', 'high') }}">
+                </div>
+
+                {{-- 4. DESCRIPTION (Maxim Style "Perincian") --}}
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between px-1">
+                        <label for="description" class="block text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                            4. Perincian & Kronologi Kejadian <span class="text-orange-500">*</span>
+                        </label>
+                        <span id="charCount" class="text-xs font-mono text-slate-500">0 / 2000</span>
+                    </div>
+
+                    <div class="maxim-input-card !p-4">
+                        <textarea
+                            id="description"
+                            name="description"
+                            rows="3"
+                            placeholder="Tuliskan kronologi singkat, kondisi korban, atau patokan lokasi khusus..."
+                            class="w-full bg-transparent text-sm sm:text-base font-semibold text-white placeholder-slate-500 focus:outline-none resize-none"
+                            required
+                        >{{ old('description') }}</textarea>
+                    </div>
+                </div>
+
+                {{-- 5. SUBMIT BUTTON (Orange Basarnas!) --}}
+                <div class="pt-2 sticky bottom-4 z-40">
+                    <button type="submit" id="submitBtn" class="w-full flex items-center justify-center gap-3 cursor-pointer">
+                        <svg class="h-6 w-6 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                        <span id="submitBtnText" class="text-base sm:text-lg tracking-wider uppercase font-black">Kirim Laporan Darurat &rarr;</span>
+                    </button>
+                    <p class="mt-3 text-center text-[11px] font-bold text-slate-500">
+                        ⚠️ Peringatan: Penyalahgunaan panggilan darurat Basarnas dilindungi hukum & dikenakan sanksi pidana.
+                    </p>
+                </div>
+
+            </form>
+        </main>
+
+        {{-- Maxim-Style Bottom Footer Bar --}}
+        <footer class="mt-8 border-t border-[#242832] bg-[#181a20] py-6 text-center text-slate-500 text-xs">
+            <div class="mx-auto max-w-4xl px-4 flex flex-col sm:flex-row items-center justify-between gap-4 font-semibold">
+                <div class="flex items-center gap-2">
+                    <span class="grid h-6 w-6 place-items-center rounded bg-orange-500 text-black font-black text-[10px]">SG</span>
+                    <span class="text-slate-300 font-bold">SIGAP-SAR Dispatch</span>
+                    <span>&bull;</span>
+                </div>
+                <div>&copy; {{ date('Y') }} Basarnas & Operation Network. Siaga 24 Jam.</div>
+            </div>
+        </footer>
+
     </div>
 
     @push('scripts')
@@ -624,24 +530,25 @@
     function setGPSState(state, msg) {
         locationText.textContent = msg;
         const labels = {
-            idle:    ['Belum Aktif',   'bg-slate-200 text-slate-600'],
-            loading: ['Mencari GPS',   'bg-amber-100 text-amber-800'],
-            ready:   ['GPS Aktif',     'bg-emerald-100 text-emerald-700'],
-            warning: ['Akurasi Rendah','bg-yellow-100 text-yellow-800'],
-            error:   ['GPS Error',     'bg-red-100 text-red-700'],
+            idle:    ['Belum Aktif',   'bg-slate-700 text-slate-300'],
+            loading: ['Mencari GPS',   'bg-amber-500/20 text-amber-300 border border-amber-500/30'],
+            ready:   ['GPS Aktif',     'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'],
+            warning: ['Akurasi Rendah','bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'],
+            error:   ['GPS Error',     'bg-red-500/20 text-red-300 border border-red-500/30'],
         };
         const [label, cls] = labels[state] ?? labels.idle;
         locationBadge.textContent  = label;
-        locationBadge.className    = `rounded px-1.5 py-0.5 text-[9px] font-bold ${cls}`;
+        locationBadge.className    = `rounded px-2 py-0.5 text-[10px] font-black uppercase tracking-wide ${cls}`;
 
         const hintClasses = {
-            loading: 'gps-status-card gps-loading mt-2.5 flex items-start gap-1.5',
-            ready:   'gps-status-card gps-ready mt-2.5 flex items-start gap-1.5',
-            warning: 'gps-status-card gps-warning mt-2.5 flex items-start gap-1.5',
-            error:   'gps-status-card gps-error mt-2.5 flex items-start gap-1.5',
+            loading: 'mt-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 p-3 text-xs font-semibold text-amber-200 flex items-center gap-2',
+            ready:   'mt-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-3 text-xs font-semibold text-emerald-200 flex items-center gap-2',
+            warning: 'mt-3.5 rounded-xl bg-yellow-500/10 border border-yellow-500/30 p-3 text-xs font-semibold text-yellow-200 flex items-center gap-2',
+            error:   'mt-3.5 rounded-xl bg-red-500/10 border border-red-500/30 p-3 text-xs font-semibold text-red-200 flex items-center gap-2',
         };
-        locationHint.className = hintClasses[state] ?? 'gps-status-card gps-idle mt-2.5 flex items-start gap-1.5';
-        locationHintTx.textContent = msg;
+        locationHint.className = hintClasses[state] ?? 'mt-3.5 hidden rounded-xl bg-[#1e222b] border border-[#333846] p-3 text-xs font-semibold text-slate-300 flex items-center gap-2';
+        locationHint.classList.remove('hidden');
+        if (locationHintTx) locationHintTx.textContent = msg;
     }
 
     function setSubmitBtnState(state) {
@@ -717,59 +624,35 @@
         reportForm.submit();
     }
 
-    /* ═══════════════ DROPDOWNS ═══════════════ */
-    function initDropdown(wrapperId, triggerId, dropdownId, valueId, labelId, iconId) {
-        const wrapper  = document.getElementById(wrapperId);
-        const trigger  = document.getElementById(triggerId);
-        const dropdown = document.getElementById(dropdownId);
-        const hidInput = document.getElementById(valueId);
-        const label    = document.getElementById(labelId);
-        const icon     = document.getElementById(iconId);
+    /* ═══════════════ MAXIM INCIDENT GRID SELECTOR ═══════════════ */
+    const incidentCards = document.querySelectorAll('.incident-card');
+    const incidentLabel = document.getElementById('incidentLabel');
+    const hidIncidentVal = document.getElementById('incidentValue');
 
-        const oldVal = hidInput.value;
-        if (oldVal) {
-            const opt = dropdown.querySelector(`[data-value="${oldVal}"]`);
-            if (opt) {
-                label.textContent = opt.textContent.replace(opt.dataset.icon, '').trim();
-                icon.textContent = opt.dataset.icon;
-                opt.classList.add('active');
-            }
+    if (hidIncidentVal && hidIncidentVal.value) {
+        const activeCard = document.querySelector(`.incident-card[data-value="${hidIncidentVal.value}"]`);
+        if (activeCard) {
+            activeCard.classList.add('active');
+            if (incidentLabel) incidentLabel.textContent = `${activeCard.dataset.icon} ${activeCard.dataset.value}`;
         }
-
-        trigger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const isOpen = wrapper.classList.contains('open');
-            document.querySelectorAll('.custom-select-wrapper.open').forEach(w => w.classList.remove('open'));
-            if (!isOpen) {
-                wrapper.classList.add('open');
-            }
-        });
-
-        function closeDropdown() {
-            wrapper.classList.remove('open');
-        }
-
-        dropdown.querySelectorAll('.select-option').forEach(opt => {
-            opt.addEventListener('click', (e) => {
-                e.stopPropagation();
-                hidInput.value = opt.dataset.value;
-                label.textContent = opt.textContent.replace(opt.dataset.icon, '').trim();
-                icon.textContent  = opt.dataset.icon;
-                dropdown.querySelectorAll('.select-option').forEach(o => o.classList.remove('active'));
-                opt.classList.add('active');
-                closeDropdown();
-
-                trigger.style.borderColor = '';
-                checkFormValidity();
-            });
-        });
     }
 
-    initDropdown('incidentWrapper','incidentTrigger','incidentDropdown','incidentValue','incidentLabel','incidentIcon');
-    document.addEventListener('click', () => {
-        document.querySelectorAll('.custom-select-wrapper.open').forEach(w => {
-            w.classList.remove('open');
-            document.body.style.overflow = '';
+    incidentCards.forEach(card => {
+        card.addEventListener('click', () => {
+            incidentCards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            
+            const val = card.dataset.value;
+            const icon = card.dataset.icon;
+            hidIncidentVal.value = val;
+            if (incidentLabel) {
+                incidentLabel.textContent = `${icon} ${val}`;
+                incidentLabel.className = 'text-xs font-black text-orange-400';
+            }
+
+            const trigger = document.getElementById('incidentTrigger');
+            if (trigger) trigger.style.borderColor = '';
+            checkFormValidity();
         });
     });
 

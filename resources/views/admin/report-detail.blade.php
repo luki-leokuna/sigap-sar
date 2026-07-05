@@ -1,4 +1,4 @@
-<x-layouts.app title="Detail Laporan {{ $report->tracking_code }}">
+<x-layouts.app title="Detail Laporan {{ $report->tracking_code }}" :hideChrome="true" :fullBleed="true">
     @php
         $assignment = $report->activeAssignment;
         $memberLocation = $assignment?->member?->memberLocation;
@@ -25,6 +25,12 @@
 
     @push('scripts')
         <style>
+            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+            body, .timsar-maxim-admin {
+                font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
+                background-color: #181a20 !important;
+                color: #e2e8f0 !important;
+            }
             /* ── Activity Timeline Styling ── */
             .timeline-container {
                 position: relative;
@@ -37,7 +43,7 @@
                 top: 8px;
                 bottom: 8px;
                 width: 2px;
-                background-color: #e2e8f0;
+                background-color: #333846;
             }
             .timeline-item {
                 position: relative;
@@ -53,14 +59,14 @@
                 width: 16px;
                 height: 16px;
                 border-radius: 9999px;
-                background-color: #cbd5e1;
-                border: 3px solid #fff;
-                box-shadow: 0 0 0 1.5px #cbd5e1;
+                background-color: #333846;
+                border: 3px solid #181a20;
+                box-shadow: 0 0 0 1.5px #4b5265;
                 transition: all 0.25s ease;
             }
             .timeline-item.active .timeline-dot {
-                background-color: #dc2626;
-                box-shadow: 0 0 0 1.5px #dc2626;
+                background-color: #f97316;
+                box-shadow: 0 0 0 1.5px #f97316;
             }
             @keyframes pulse-ring {
                 0% { transform: scale(0.95); opacity: 0.5; }
@@ -72,7 +78,7 @@
                 position: absolute;
                 inset: -4px;
                 border-radius: 9999px;
-                border: 2.5px solid #dc2626;
+                border: 2.5px solid #f97316;
                 animation: pulse-ring 2s infinite ease-in-out;
             }
 
@@ -86,153 +92,154 @@
 
             /* Custom Map Popup */
             .leaflet-popup-content-wrapper {
+                background: #1e222b !important;
                 border-radius: 0.75rem !important;
-                box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.05) !important;
-                border: 1px solid #e2e8f0 !important;
+                box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5) !important;
+                border: 1px solid #333846 !important;
                 padding: 0.25rem !important;
+                color: #fff !important;
             }
+            .leaflet-popup-tip { background: #1e222b !important; }
             .leaflet-popup-content {
-                font-family: inherit !important;
+                font-family: 'Outfit', inherit !important;
                 font-size: 0.85rem !important;
-                color: #334155 !important;
+                color: #e2e8f0 !important;
                 line-height: 1.5 !important;
                 margin: 0.5rem 0.75rem !important;
             }
 
-            /* Custom Scrollbar for Logs Table */
-            .custom-scrollbar::-webkit-scrollbar {
-                width: 6px;
-                height: 6px;
-            }
-            .custom-scrollbar::-webkit-scrollbar-track {
-                background: #f8fafc;
-            }
-            .custom-scrollbar::-webkit-scrollbar-thumb {
-                background: #cbd5e1;
-                border-radius: 99px;
-            }
-            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                background: #94a3b8;
-            }
+            /* Custom Scrollbar */
+            ::-webkit-scrollbar { width: 6px; height: 6px; }
+            ::-webkit-scrollbar-track { background: #181a20; }
+            ::-webkit-scrollbar-thumb { background: #333846; border-radius: 4px; }
+            ::-webkit-scrollbar-thumb:hover { background: #4b5265; }
+            .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+            .custom-scrollbar::-webkit-scrollbar-track { background: #1e222b; }
+            .custom-scrollbar::-webkit-scrollbar-thumb { background: #333846; border-radius: 99px; }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #4b5265; }
         </style>
     @endpush
 
-    <section class="space-y-6 mx-auto max-w-7xl px-2 sm:px-4 py-4">
-
-        {{-- ── TACTICAL COMMAND BAR ── --}}
-        <div class="flex flex-col justify-between gap-4 border-b border-slate-200/80 pb-5 md:flex-row md:items-center">
-            <div>
-                <div class="flex items-center gap-2">
-                    <span class="inline-flex h-2.5 w-2.5 rounded-full {{ $isClosed ? 'bg-emerald-500 animate-pulse' : 'bg-red-500 animate-ping' }}"></span>
-                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">{{ $isClosed ? 'REKAP OPERASI TIMSAR' : 'POSKO OPERASI TIMSAR ACTIVE' }}</span>
+    <div class="timsar-maxim-admin min-h-screen bg-[#181a20] text-slate-100 flex flex-col">
+        
+        {{-- ── TOP TACTICAL COMMAND BAR (HEADER) ── --}}
+        <header class="bg-[#1e222b] border-b border-[#333846] px-4 sm:px-6 py-3.5 shrink-0 flex flex-col gap-3 md:flex-row md:items-center md:justify-between shadow-xl z-20">
+            <div class="flex items-center gap-3.5 min-w-0">
+                <span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-orange-600 to-amber-600 text-white font-black text-base shadow-lg shadow-orange-500/20 border border-orange-400/30 font-mono">
+                    {{ substr($report->tracking_code, -4) }}
+                </span>
+                <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 rounded-full {{ $isClosed ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30' }} border px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
+                            <span class="h-1.5 w-1.5 rounded-full {{ $isClosed ? 'bg-emerald-500' : 'bg-red-500 animate-pulse' }}"></span>
+                            {{ $isClosed ? 'REKAP OPERASI SELESAI' : 'POSKO OPERASI AKTIF' }}
+                        </span>
+                        <span id="reportStatusBadge" class="inline-flex rounded-md bg-[#242832] border border-[#333846] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-orange-400">
+                            {{ \App\Http\Controllers\PublicTrackingController::statusLabel($report->status) }}
+                        </span>
+                        <h1 class="text-base sm:text-xl font-black text-white truncate">{{ $report->incident_type }}</h1>
+                    </div>
+                    <p class="text-xs font-semibold text-slate-400 truncate mt-0.5 flex items-center gap-2">
+                        <span>Pelapor: <strong class="text-white">{{ $report->reporter_name }}</strong></span>
+                        <span class="text-slate-600">•</span>
+                        <span>Kode: <strong class="text-orange-400 font-mono">{{ $report->tracking_code }}</strong></span>
+                        <span class="text-slate-600">•</span>
+                        <span class="font-mono">{{ $report->created_at->format('d M Y, H:i') }} WITA</span>
+                    </p>
                 </div>
-                <h1 class="mt-2 text-2xl font-black tracking-tight text-slate-900 sm:text-4xl flex items-center gap-3 flex-wrap">
-                    <span class="font-mono text-orange-600 bg-orange-50 border border-orange-200 px-3 py-1 rounded-xl text-xl sm:text-2xl shadow-sm">{{ $report->tracking_code }}</span>
-                    <span class="text-slate-900 text-xl sm:text-3xl font-black">{{ $report->incident_type }}</span>
-                </h1>
-                <p class="mt-2 text-xs sm:text-sm font-semibold text-slate-600 flex items-center gap-2 flex-wrap">
-                    <span>Pelapor: <strong class="text-slate-900">{{ $report->reporter_name }}</strong></span>
-                    <span class="text-slate-400">•</span>
-                    <span>Waktu Masuk: <strong class="text-slate-900 font-mono">{{ $report->created_at->format('d M Y, H:i') }} WITA</strong></span>
-                </p>
             </div>
 
             {{-- Action Buttons --}}
-            <div class="flex flex-wrap items-center gap-2.5">
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
                 @unless($isClosed)
-                    <a href="{{ $phoneLink }}" class="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-xs font-black text-red-700 transition-all hover:bg-red-600 hover:text-white shadow-sm active:scale-95">
-                        <span>📞 Hubungi Pelapor</span>
+                    <a href="{{ $phoneLink }}" class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-red-600 hover:bg-red-500 px-3.5 py-2 text-xs font-black text-white transition-all shadow-md shadow-red-500/20 active:scale-95">
+                        <span>📞</span> <span>Hubungi Pelapor</span>
                     </a>
                 @endunless
-                <a href="{{ $trackingUrl }}" target="_blank" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-black text-slate-700 transition-all hover:border-orange-500 hover:text-orange-600 shadow-sm active:scale-95">
-                    <span>📡 Lacak Publik</span>
+                <a href="{{ $trackingUrl }}" target="_blank" class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#333846] bg-[#242832] px-3.5 py-2 text-xs font-black text-slate-200 transition-all hover:border-orange-500 hover:text-orange-400 shadow-sm active:scale-95">
+                    <span>📡</span> <span>Lacak Publik</span>
                 </a>
-                <a href="{{ $mapsUrl }}" target="_blank" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-black text-slate-700 transition-all hover:border-orange-500 hover:text-orange-600 shadow-sm active:scale-95">
-                    <span>🗺️ G-Maps</span>
+                <a href="{{ $mapsUrl }}" target="_blank" class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#333846] bg-[#242832] px-3.5 py-2 text-xs font-black text-slate-200 transition-all hover:border-orange-500 hover:text-orange-400 shadow-sm active:scale-95">
+                    <span>🗺️</span> <span>G-Maps</span>
                 </a>
                 @unless($isClosed)
-                    <a href="{{ $directionsUrl }}" target="_blank" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-black text-slate-700 transition-all hover:border-orange-500 hover:text-orange-600 shadow-sm active:scale-95">
-                        <span>🧭 Rute Navigasi</span>
+                    <a href="{{ $directionsUrl }}" target="_blank" class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#333846] bg-[#242832] px-3.5 py-2 text-xs font-black text-slate-200 transition-all hover:border-orange-500 hover:text-orange-400 shadow-sm active:scale-95">
+                        <span>🧭</span> <span>Navigasi</span>
                     </a>
                 @endunless
-                <a href="{{ $evidenceUrl }}" target="_blank" class="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-xs font-black text-amber-700 transition-all hover:bg-amber-600 hover:text-white shadow-sm active:scale-95">
-                    <span>🖨️ Cetak Bukti Audit</span>
+                <a href="{{ $evidenceUrl }}" target="_blank" class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 px-3.5 py-2 text-xs font-black text-white transition-all shadow-md shadow-orange-500/20 active:scale-95">
+                    <span>🖨️</span> <span>Cetak Bukti Audit</span>
                 </a>
-                @if($isClosed)
-                    <a href="{{ route('admin.reports.index') }}" class="inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs font-black text-emerald-700 transition-all hover:bg-emerald-600 hover:text-white shadow-sm active:scale-95">
-                        <span>📋 Riwayat</span>
-                    </a>
-                @endif
-                <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 px-5 py-2.5 text-xs font-black text-white shadow-md shadow-orange-500/20 transition-all active:scale-95">
-                    <span>🛡️ Radar Posko</span>
+                <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#242832] hover:bg-[#2c303d] border border-[#333846] hover:border-orange-500 px-4 py-2 text-xs font-black text-slate-200 transition-all active:scale-95">
+                    <span>⬅️</span> <span>Radar Posko</span>
                 </a>
             </div>
-        </div>
+        </header>
 
-        {{-- ── TWO COLUMN MAIN PANEL ── --}}
-        <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+        {{-- ── TWO COLUMN TACTICAL MAIN PANEL ── --}}
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_400px]">
 
             {{-- Left column --}}
             <div class="flex flex-col gap-6">
 
                 {{-- Detail Laporan --}}
-                <div class="order-1 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl">
-                    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start border-b border-slate-200/80 pb-5">
+                <div class="order-1 rounded-3xl border border-[#333846] bg-[#1e222b] p-6 shadow-xl">
+                    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start border-b border-[#333846] pb-5">
                         <div class="space-y-1.5">
-                            <span class="inline-block text-[10px] font-mono font-black px-2.5 py-1 rounded-md bg-orange-50 text-orange-700 uppercase tracking-widest border border-orange-200">ID INCIDENT: {{ $report->tracking_code }}</span>
-                            <h2 class="text-2xl font-black text-slate-900 leading-tight mt-1">{{ $report->incident_type }}</h2>
-                            <p class="text-sm text-slate-600 leading-relaxed pt-1 font-medium">{{ $report->description }}</p>
+                            <span class="inline-block text-[10px] font-mono font-black px-2.5 py-1 rounded-md bg-orange-500/20 text-orange-400 uppercase tracking-widest border border-orange-500/40">ID INCIDENT: {{ $report->tracking_code }}</span>
+                            <h2 class="text-2xl font-black text-white leading-tight mt-1">{{ $report->incident_type }}</h2>
+                            <p class="text-sm text-slate-300 leading-relaxed pt-1 font-medium">{{ $report->description }}</p>
                         </div>
-                        <span id="reportStatusBadge" class="inline-flex shrink-0 self-start rounded-xl bg-red-50 border border-red-200 px-4 py-1.5 text-xs font-black text-red-700 shadow-sm">
+                        <span class="inline-flex shrink-0 self-start rounded-xl bg-red-500/20 border border-red-500/40 px-4 py-1.5 text-xs font-black text-red-400 shadow-sm">
                             {{ \App\Http\Controllers\PublicTrackingController::statusLabel($report->status) }}
                         </span>
                     </div>
 
                     {{-- Form Parameters Grid --}}
                     <div class="mt-5 grid gap-4 grid-cols-2 sm:grid-cols-4">
-                        <div class="rounded-2xl bg-slate-50 p-4 border border-slate-200/80 flex flex-col justify-between shadow-sm">
+                        <div class="rounded-2xl bg-[#242832] p-4 border border-[#333846] flex flex-col justify-between shadow-sm">
                             <div>
-                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">Pelapor</span>
-                                <p class="text-sm font-black text-slate-900 truncate">{{ $report->reporter_name }}</p>
+                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Pelapor</span>
+                                <p class="text-sm font-black text-white truncate">{{ $report->reporter_name }}</p>
                             </div>
-                            <p class="text-xs text-orange-600 mt-2 font-mono font-bold">{{ $report->reporter_phone }}</p>
+                            <p class="text-xs text-orange-400 mt-2 font-mono font-bold">{{ $report->reporter_phone }}</p>
                         </div>
-                        <div class="rounded-2xl bg-slate-50 p-4 border border-slate-200/80 flex flex-col justify-between shadow-sm">
+                        <div class="rounded-2xl bg-[#242832] p-4 border border-[#333846] flex flex-col justify-between shadow-sm">
                             <div>
-                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">Akurasi GPS</span>
-                                <p class="text-sm font-black text-slate-900 font-mono">{{ $report->accuracy ? number_format($report->accuracy) . ' meter' : '-' }}</p>
+                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Akurasi GPS</span>
+                                <p class="text-sm font-black text-white font-mono">{{ $report->accuracy ? number_format($report->accuracy) . ' meter' : '-' }}</p>
                             </div>
-                            <p class="text-xs text-slate-500 mt-2 font-semibold">Radius Deviasi</p>
+                            <p class="text-xs text-slate-400 mt-2 font-semibold">Radius Deviasi</p>
                         </div>
-                        <div class="rounded-2xl bg-slate-50 p-4 border border-slate-200/80 flex flex-col justify-between shadow-sm">
+                        <div class="rounded-2xl bg-[#242832] p-4 border border-[#333846] flex flex-col justify-between shadow-sm">
                             <div>
-                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">Prioritas</span>
-                                <p class="text-sm font-black text-slate-900 flex items-center gap-2">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Prioritas</span>
+                                <p class="text-sm font-black text-white flex items-center gap-2">
                                     <span class="inline-block h-2 w-2 rounded-full {{ $report->priority === 'critical' ? 'bg-red-500 animate-ping' : ($report->priority === 'high' ? 'bg-orange-500' : 'bg-yellow-500') }}"></span>
                                     <span>{{ strtoupper($report->priority) }}</span>
                                 </p>
                             </div>
-                            <p class="text-xs text-slate-500 mt-2 font-semibold">Tingkat Darurat</p>
+                            <p class="text-xs text-slate-400 mt-2 font-semibold">Tingkat Darurat</p>
                         </div>
-                        <div class="rounded-2xl bg-slate-50 p-4 border border-slate-200/80 flex flex-col justify-between shadow-sm">
+                        <div class="rounded-2xl bg-[#242832] p-4 border border-[#333846] flex flex-col justify-between shadow-sm">
                             <div>
-                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">Petugas Rescue</span>
-                                <p class="text-sm font-black text-orange-600 truncate">{{ $report->assignedMember?->name ?? 'Belum ditunjuk' }}</p>
+                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Petugas Rescue</span>
+                                <p class="text-sm font-black text-orange-400 truncate">{{ $report->assignedMember?->name ?? 'Belum ditunjuk' }}</p>
                             </div>
-                            <p class="text-xs text-slate-500 mt-2 font-semibold">Pelaksana Lapangan</p>
+                            <p class="text-xs text-slate-400 mt-2 font-semibold">Pelaksana Lapangan</p>
                         </div>
                     </div>
 
                     @if($isClosed)
-                        <div class="mt-5 rounded-2xl border {{ $report->status === \App\Models\Report::STATUS_COMPLETED ? 'border-emerald-200 bg-emerald-50' : 'border-red-200 bg-red-50' }} p-5 shadow-sm">
+                        <div class="mt-5 rounded-2xl border {{ $report->status === \App\Models\Report::STATUS_COMPLETED ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-red-500/40 bg-red-500/10 text-red-300' }} p-5 shadow-sm">
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <p class="text-sm font-black text-slate-900">
+                                    <p class="text-sm font-black text-white">
                                         {{ $report->status === \App\Models\Report::STATUS_COMPLETED ? '✅ Operasi selesai dan masuk riwayat resmi' : '🚨 Laporan dibatalkan dan masuk riwayat posko' }}
                                     </p>
-                                    <p class="mt-1 text-xs font-semibold text-slate-600 font-mono">
+                                    <p class="mt-1 text-xs font-semibold text-slate-400 font-mono">
                                         Ditutup {{ $closedAt?->format('d M Y, H:i') ?? '-' }}
-                                        @if($report->closedBy) oleh <strong class="text-slate-900">{{ $report->closedBy->name }}</strong> @endif
+                                        @if($report->closedBy) oleh <strong class="text-white">{{ $report->closedBy->name }}</strong> @endif
                                     </p>
                                 </div>
                                 <a href="{{ $evidenceUrl }}" target="_blank" class="inline-flex items-center justify-center rounded-xl bg-orange-600 hover:bg-orange-500 px-4 py-2.5 text-xs font-black text-white shadow-md shadow-orange-500/20 transition-all">
@@ -240,8 +247,8 @@
                                 </a>
                             </div>
                             @if($report->closure_notes)
-                                <div class="mt-4 rounded-xl border border-slate-200/80 bg-white p-3.5 text-xs sm:text-sm text-slate-700 shadow-sm">
-                                    <span class="font-black text-orange-600">💬 Catatan Penutupan:</span> {{ $report->closure_notes }}
+                                <div class="mt-4 rounded-xl border border-[#333846] bg-[#242832] p-3.5 text-xs sm:text-sm text-slate-300 shadow-sm">
+                                    <span class="font-black text-orange-400">💬 Catatan Penutupan:</span> {{ $report->closure_notes }}
                                 </div>
                             @endif
                         </div>
@@ -249,31 +256,31 @@
                 </div>
 
                 {{-- Map Container --}}
-                <div class="order-2 flex flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-xl">
-                    <div class="flex flex-col gap-4 border-b border-slate-200/80 bg-slate-50 px-6 py-4 lg:flex-row lg:items-center lg:justify-between">
+                <div class="order-2 flex flex-col overflow-hidden rounded-3xl border border-[#333846] bg-[#1e222b] shadow-xl">
+                    <div class="flex flex-col gap-4 border-b border-[#333846] bg-[#242832] px-6 py-4 lg:flex-row lg:items-center lg:justify-between">
                         <div>
-                            <span class="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                            <span class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
                                 <span>🛰️</span>
                                 <span>{{ $isClosed ? 'Peta Bukti Perjalanan Petugas' : 'Visual Peta Operasi & Tracking Realtime' }}</span>
                             </span>
-                            <div class="mt-2 flex flex-wrap gap-4 text-xs font-bold text-slate-600">
+                            <div class="mt-2 flex flex-wrap gap-4 text-xs font-bold text-slate-300">
                                 <span class="inline-flex items-center gap-2"><span class="h-2.5 w-5 rounded bg-blue-500 shadow-sm shadow-blue-500/50"></span>Jalur Ditempuh</span>
                                 <span class="inline-flex items-center gap-2"><span class="h-2.5 w-5 rounded bg-red-500 shadow-sm shadow-red-500/50"></span>{{ $isClosed ? 'Rute Hasil Hitung' : 'Rute Navigasi' }}</span>
                                 <span class="inline-flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50"></span>Pemancar BTS</span>
                             </div>
                         </div>
                         <div class="grid grid-cols-3 gap-3 text-xs">
-                            <div class="rounded-xl border border-slate-200/80 bg-white px-3.5 py-2 shadow-sm">
-                                <span class="block text-[9px] font-black uppercase tracking-wider text-slate-500">Jalur GPS</span>
-                                <p id="trailDistanceText" class="mt-0.5 font-mono font-black text-orange-600 text-sm">-</p>
+                            <div class="rounded-xl border border-[#333846] bg-[#181a20] px-3.5 py-2 shadow-sm">
+                                <span class="block text-[9px] font-black uppercase tracking-wider text-slate-400">Jalur GPS</span>
+                                <p id="trailDistanceText" class="mt-0.5 font-mono font-black text-orange-400 text-sm">-</p>
                             </div>
-                            <div class="rounded-xl border border-slate-200/80 bg-white px-3.5 py-2 shadow-sm">
-                                <span class="block text-[9px] font-black uppercase tracking-wider text-slate-500">Titik Log</span>
-                                <p id="trailPointText" class="mt-0.5 font-mono font-black text-blue-600 text-sm">-</p>
+                            <div class="rounded-xl border border-[#333846] bg-[#181a20] px-3.5 py-2 shadow-sm">
+                                <span class="block text-[9px] font-black uppercase tracking-wider text-slate-400">Titik Log</span>
+                                <p id="trailPointText" class="mt-0.5 font-mono font-black text-blue-400 text-sm">-</p>
                             </div>
-                            <div class="rounded-xl border border-slate-200/80 bg-white px-3.5 py-2 shadow-sm">
-                                <span class="block text-[9px] font-black uppercase tracking-wider text-slate-500">Node BTS</span>
-                                <p id="trailNetworkText" class="mt-0.5 font-mono font-black text-emerald-600 text-sm">-</p>
+                            <div class="rounded-xl border border-[#333846] bg-[#181a20] px-3.5 py-2 shadow-sm">
+                                <span class="block text-[9px] font-black uppercase tracking-wider text-slate-400">Node BTS</span>
+                                <p id="trailNetworkText" class="mt-0.5 font-mono font-black text-emerald-400 text-sm">-</p>
                             </div>
                         </div>
                     </div>
@@ -281,40 +288,40 @@
                 </div>
 
                 {{-- Bukti Mobile Computing --}}
-                <div class="order-3 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl">
-                    <div class="flex flex-col gap-3 border-b border-slate-200/80 pb-4 sm:flex-row sm:items-start sm:justify-between">
+                <div class="order-3 rounded-3xl border border-[#333846] bg-[#1e222b] p-6 shadow-xl">
+                    <div class="flex flex-col gap-3 border-b border-[#333846] pb-4 sm:flex-row sm:items-start sm:justify-between">
                         <div>
-                            <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider">Bukti Audit & Telemetri Mobile Computing</h2>
-                            <p class="mt-1 text-xs font-semibold text-slate-600">
+                            <h2 class="text-sm font-black text-white uppercase tracking-wider">Bukti Audit & Telemetri Mobile Computing</h2>
+                            <p class="mt-1 text-xs font-semibold text-slate-400">
                                 {{ $isClosed ? 'Bukti perjalanan yang tersimpan selama operasi berlangsung.' : 'Ringkasan perpindahan lokasi, observasi menara seluler (BTS), dan status GPS petugas.' }}
                             </p>
                         </div>
-                        <span id="evidenceLastSeenText" class="rounded-full bg-orange-50 border border-orange-200 px-3.5 py-1 text-xs font-black text-orange-700 font-mono shadow-sm">
+                        <span id="evidenceLastSeenText" class="rounded-full bg-orange-500/20 border border-orange-500/40 px-3.5 py-1 text-xs font-black text-orange-400 font-mono shadow-sm">
                             {{ $evidenceSummary['last_at'] ? 'Update ' . $evidenceSummary['last_at']->format('H:i:s') : 'Belum ada ping' }}
                         </span>
                     </div>
 
                     {{-- Telemetry Dashboard Cards --}}
                     <div class="mt-5 grid gap-4 grid-cols-2 lg:grid-cols-5">
-                        <div class="rounded-2xl border border-blue-200 bg-blue-50 p-4 flex flex-col justify-between shadow-sm">
-                            <span class="block text-[10px] font-black uppercase tracking-wider text-blue-600">Titik GPS</span>
-                            <p id="evidenceGpsText" class="mt-2 text-2xl sm:text-3xl font-mono font-black text-slate-900">{{ number_format($evidenceSummary['gps_points']) }}</p>
+                        <div class="rounded-2xl border border-blue-500/30 bg-blue-500/10 p-4 flex flex-col justify-between shadow-sm">
+                            <span class="block text-[10px] font-black uppercase tracking-wider text-blue-400">Titik GPS</span>
+                            <p id="evidenceGpsText" class="mt-2 text-2xl sm:text-3xl font-mono font-black text-white">{{ number_format($evidenceSummary['gps_points']) }}</p>
                         </div>
-                        <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 flex flex-col justify-between shadow-sm">
-                            <span class="block text-[10px] font-black uppercase tracking-wider text-amber-600">Log BTS</span>
-                            <p id="evidenceCellText" class="mt-2 text-2xl sm:text-3xl font-mono font-black text-slate-900">{{ number_format($evidenceSummary['cell_observations']) }}</p>
+                        <div class="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 flex flex-col justify-between shadow-sm">
+                            <span class="block text-[10px] font-black uppercase tracking-wider text-amber-400">Log BTS</span>
+                            <p id="evidenceCellText" class="mt-2 text-2xl sm:text-3xl font-mono font-black text-white">{{ number_format($evidenceSummary['cell_observations']) }}</p>
                         </div>
-                        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 flex flex-col justify-between shadow-sm">
-                            <span class="block text-[10px] font-black uppercase tracking-wider text-emerald-600">Pindah Jaringan</span>
-                            <p id="evidenceNetworkText" class="mt-2 text-2xl sm:text-3xl font-mono font-black text-slate-900">{{ number_format($evidenceSummary['network_changes']) }}x</p>
+                        <div class="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 flex flex-col justify-between shadow-sm">
+                            <span class="block text-[10px] font-black uppercase tracking-wider text-emerald-400">Pindah Jaringan</span>
+                            <p id="evidenceNetworkText" class="mt-2 text-2xl sm:text-3xl font-mono font-black text-white">{{ number_format($evidenceSummary['network_changes']) }}x</p>
                         </div>
-                        <div class="rounded-2xl border border-orange-200 bg-orange-50 p-4 flex flex-col justify-between shadow-sm">
-                            <span class="block text-[10px] font-black uppercase tracking-wider text-orange-600">Handover BTS</span>
-                            <p id="evidenceHandoverText" class="mt-2 text-2xl sm:text-3xl font-mono font-black text-slate-900">{{ number_format($evidenceSummary['handovers']) }}x</p>
+                        <div class="rounded-2xl border border-orange-500/30 bg-orange-500/10 p-4 flex flex-col justify-between shadow-sm">
+                            <span class="block text-[10px] font-black uppercase tracking-wider text-orange-400">Handover BTS</span>
+                            <p id="evidenceHandoverText" class="mt-2 text-2xl sm:text-3xl font-mono font-black text-white">{{ number_format($evidenceSummary['handovers']) }}x</p>
                         </div>
-                        <div class="rounded-2xl border border-slate-200/80 bg-slate-50 p-4 flex flex-col justify-between col-span-2 lg:col-span-1 shadow-sm">
-                            <span class="block text-[10px] font-black uppercase tracking-wider text-slate-500">Jalur Terekam</span>
-                            <p id="evidenceDistanceText" class="mt-2 text-xl sm:text-2xl font-mono font-black text-orange-600">
+                        <div class="rounded-2xl border border-[#333846] bg-[#242832] p-4 flex flex-col justify-between col-span-2 lg:col-span-1 shadow-sm">
+                            <span class="block text-[10px] font-black uppercase tracking-wider text-slate-400">Jalur Terekam</span>
+                            <p id="evidenceDistanceText" class="mt-2 text-xl sm:text-2xl font-mono font-black text-orange-400">
                                 {{ $evidenceSummary['distance_meters'] >= 1000 ? number_format($evidenceSummary['distance_meters'] / 1000, 2) . ' km' : number_format($evidenceSummary['distance_meters']) . ' m' }}
                             </p>
                         </div>
@@ -322,13 +329,13 @@
 
                     {{-- Cell info box --}}
                     <div class="mt-4 grid gap-4 lg:grid-cols-2">
-                        <div class="rounded-2xl border border-slate-200/80 bg-slate-50 p-4 flex items-center gap-3.5 shadow-sm">
-                            <div class="p-2.5 rounded-xl bg-white border border-slate-200/80 text-orange-600 shrink-0 shadow-sm">
+                        <div class="rounded-2xl border border-[#333846] bg-[#242832] p-4 flex items-center gap-3.5 shadow-sm">
+                            <div class="p-2.5 rounded-xl bg-[#181a20] border border-[#333846] text-orange-400 shrink-0 shadow-sm">
                                 📡
                             </div>
                             <div>
-                                <span class="block text-[10px] font-black uppercase tracking-wider text-slate-500">Menara BTS Awal</span>
-                                <p id="evidenceFirstCellText" class="mt-1 text-xs sm:text-sm font-black text-slate-900 font-mono">
+                                <span class="block text-[10px] font-black uppercase tracking-wider text-slate-400">Menara BTS Awal</span>
+                                <p id="evidenceFirstCellText" class="mt-1 text-xs sm:text-sm font-black text-white font-mono">
                                     @if($evidenceSummary['first_cell'])
                                         {{ $evidenceSummary['first_cell']['operator'] }} {{ $evidenceSummary['first_cell']['radio_type'] }} / Cell {{ $evidenceSummary['first_cell']['cell_id'] }}
                                     @else
@@ -337,13 +344,13 @@
                                 </p>
                             </div>
                         </div>
-                        <div class="rounded-2xl border border-slate-200/80 bg-slate-50 p-4 flex items-center gap-3.5 shadow-sm">
-                            <div class="p-2.5 rounded-xl bg-white border border-slate-200/80 text-emerald-600 shrink-0 shadow-sm">
+                        <div class="rounded-2xl border border-[#333846] bg-[#242832] p-4 flex items-center gap-3.5 shadow-sm">
+                            <div class="p-2.5 rounded-xl bg-[#181a20] border border-[#333846] text-emerald-400 shrink-0 shadow-sm">
                                 📶
                             </div>
                             <div>
-                                <span class="block text-[10px] font-black uppercase tracking-wider text-slate-500">Menara BTS Terbaru</span>
-                                <p id="evidenceLatestCellText" class="mt-1 text-xs sm:text-sm font-black text-slate-900 font-mono">
+                                <span class="block text-[10px] font-black uppercase tracking-wider text-slate-400">Menara BTS Terbaru</span>
+                                <p id="evidenceLatestCellText" class="mt-1 text-xs sm:text-sm font-black text-white font-mono">
                                     @if($evidenceSummary['latest_cell'])
                                         {{ $evidenceSummary['latest_cell']['operator'] }} {{ $evidenceSummary['latest_cell']['radio_type'] }} / Cell {{ $evidenceSummary['latest_cell']['cell_id'] }}
                                     @else
@@ -356,17 +363,17 @@
                 </div>
 
                 {{-- Bukti BTS details --}}
-                <details open class="order-4 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl group">
+                <details open class="order-4 rounded-3xl border border-[#333846] bg-[#1e222b] p-6 shadow-xl group">
                     <summary class="flex cursor-pointer list-none items-center justify-between gap-3">
                         <div>
-                            <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                            <h2 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
                                 <span>🗼</span>
                                 <span>Log Menara BTS Lapangan</span>
                             </h2>
-                            <p class="mt-1 text-xs font-semibold text-slate-600">Daftar serving cell menara seluler Android yang terekam pada perlintasan rute.</p>
+                            <p class="mt-1 text-xs font-semibold text-slate-400">Daftar serving cell menara seluler Android yang terekam pada perlintasan rute.</p>
                         </div>
                         <div class="flex shrink-0 items-center gap-3">
-                            <span id="handoverCountText" class="rounded-xl bg-amber-50 border border-amber-200 px-3 py-1 text-xs font-black text-amber-700 font-mono shadow-sm">
+                            <span id="handoverCountText" class="rounded-xl bg-amber-500/20 border border-amber-500/40 px-3 py-1 text-xs font-black text-amber-300 font-mono shadow-sm">
                                 0 titik BTS
                             </span>
                             <svg class="details-indicator-arrow h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -374,25 +381,25 @@
                             </svg>
                         </div>
                     </summary>
-                    <div id="handoverTimeline" class="mt-5 space-y-2.5 border-t border-slate-200/80 pt-5 max-h-[320px] overflow-y-auto custom-scrollbar pr-1">
-                        <div class="rounded-2xl bg-slate-50 border border-slate-200/80 p-6 text-center text-xs font-bold text-slate-500">Belum ada data BTS dari aplikasi Android anggota.</div>
+                    <div id="handoverTimeline" class="mt-5 space-y-2.5 border-t border-[#333846] pt-5 max-h-[320px] overflow-y-auto custom-scrollbar pr-1">
+                        <div class="rounded-2xl bg-[#242832] border border-[#333846] p-6 text-center text-xs font-bold text-slate-400">Belum ada data BTS dari aplikasi Android anggota.</div>
                     </div>
                 </details>
 
                 {{-- Log Table --}}
-                <details class="order-5 rounded-3xl border border-slate-200/80 bg-white shadow-xl overflow-hidden group">
-                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-6 py-5 bg-slate-50">
+                <details class="order-5 rounded-3xl border border-[#333846] bg-[#1e222b] shadow-xl overflow-hidden group">
+                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-6 py-5 bg-[#242832]">
                         <div>
-                            <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                            <h2 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
                                 <span>📑</span>
                                 <span>Data Mentah Log Telemetri GPS & Jaringan</span>
                             </h2>
-                            <p class="mt-1 text-xs font-semibold text-slate-600">
-                                <span id="mobileLogCountText" class="font-black text-orange-600">Menampilkan {{ $mobileLogs->count() }} log terbaru</span>. {{ $isClosed ? 'Data arsip operasi dari perangkat Android.' : 'Live feed dari perangkat Android.' }}
+                            <p class="mt-1 text-xs font-semibold text-slate-400">
+                                <span id="mobileLogCountText" class="font-black text-orange-400">Menampilkan {{ $mobileLogs->count() }} log terbaru</span>. {{ $isClosed ? 'Data arsip operasi dari perangkat Android.' : 'Live feed dari perangkat Android.' }}
                             </p>
                         </div>
                         <div class="flex items-center gap-3">
-                            <span class="hidden sm:inline-flex items-center gap-1.5 rounded-full {{ $isClosed ? 'bg-slate-200 text-slate-700 border-slate-300' : 'bg-emerald-50 text-emerald-700 border-emerald-200' }} px-3 py-1 text-[10px] font-black uppercase tracking-wider border font-mono shadow-sm">
+                            <span class="hidden sm:inline-flex items-center gap-1.5 rounded-full {{ $isClosed ? 'bg-[#181a20] text-slate-300 border-[#333846]' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' }} px-3 py-1 text-[10px] font-black uppercase tracking-wider border font-mono shadow-sm">
                                 @unless($isClosed)<span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>@endunless {{ $isClosed ? 'Arsip' : 'Auto Refresh' }}
                             </span>
                             <svg class="details-indicator-arrow h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -400,9 +407,9 @@
                             </svg>
                         </div>
                     </summary>
-                    <div class="max-h-[400px] overflow-auto border-t border-slate-200/80 custom-scrollbar">
-                        <table class="min-w-full divide-y divide-slate-200/80 text-left text-xs sm:text-sm">
-                            <thead class="sticky top-0 z-10 bg-slate-50 text-[10px] uppercase font-black tracking-wider text-slate-600 border-b border-slate-200/80">
+                    <div class="max-h-[400px] overflow-auto border-t border-[#333846] custom-scrollbar">
+                        <table class="min-w-full divide-y divide-[#333846] text-left text-xs sm:text-sm">
+                            <thead class="sticky top-0 z-10 bg-[#181a20] text-[10px] uppercase font-black tracking-wider text-slate-400 border-b border-[#333846]">
                                 <tr>
                                     <th class="px-6 py-3.5">Waktu</th>
                                     <th class="px-6 py-3.5">Koordinat GPS & Akurasi</th>
@@ -411,28 +418,28 @@
                                     <th class="px-6 py-3.5">Kekuatan Sinyal</th>
                                 </tr>
                             </thead>
-                            <tbody id="mobileLogTableBody" class="divide-y divide-slate-200/80 bg-white font-medium text-slate-700">
+                            <tbody id="mobileLogTableBody" class="divide-y divide-[#333846] bg-[#1e222b] font-medium text-slate-300">
                                 @forelse($mobileLogs as $log)
-                                    <tr class="align-top hover:bg-slate-50 transition-colors">
-                                        <td class="whitespace-nowrap px-6 py-3.5 font-bold text-slate-900 font-mono">{{ $log['recorded_at']?->format('H:i:s') }}<br><span class="font-normal text-[10px] text-slate-500">{{ $log['recorded_at']?->format('d M Y') }}</span></td>
-                                        <td class="px-6 py-3.5 font-mono text-slate-700 leading-normal">
+                                    <tr class="align-top hover:bg-[#242832] transition-colors">
+                                        <td class="whitespace-nowrap px-6 py-3.5 font-bold text-white font-mono">{{ $log['recorded_at']?->format('H:i:s') }}<br><span class="font-normal text-[10px] text-slate-400">{{ $log['recorded_at']?->format('d M Y') }}</span></td>
+                                        <td class="px-6 py-3.5 font-mono text-slate-300 leading-normal">
                                             {{ number_format($log['latitude'], 6) }}, {{ number_format($log['longitude'], 6) }}
-                                            <br><span class="font-sans text-[10px] text-orange-600 font-bold">Akurasi {{ $log['accuracy'] !== null ? number_format($log['accuracy']) . ' m' : '-' }}</span>
+                                            <br><span class="font-sans text-[10px] text-orange-400 font-bold">Akurasi {{ $log['accuracy'] !== null ? number_format($log['accuracy']) . ' m' : '-' }}</span>
                                         </td>
-                                        <td class="whitespace-nowrap px-6 py-3.5 font-black text-slate-900">{{ strtoupper($log['network_type']) }}</td>
-                                        <td class="px-6 py-3.5 text-slate-700 leading-normal">
+                                        <td class="whitespace-nowrap px-6 py-3.5 font-black text-white">{{ strtoupper($log['network_type']) }}</td>
+                                        <td class="px-6 py-3.5 text-slate-300 leading-normal">
                                             @if($log['cell'])
-                                                <span class="font-black text-amber-900">{{ $log['cell']['operator'] }} {{ $log['cell']['radio_type'] }}</span>
-                                                <br><span class="font-mono text-[10px] text-slate-600">Cell {{ $log['cell']['cell_id'] }}</span>
+                                                <span class="font-black text-amber-300">{{ $log['cell']['operator'] }} {{ $log['cell']['radio_type'] }}</span>
+                                                <br><span class="font-mono text-[10px] text-slate-400">Cell {{ $log['cell']['cell_id'] }}</span>
                                                 <br><span class="text-[10px] text-slate-500">TAC/LAC {{ $log['cell']['tac_or_lac'] ?? '-' }} - PCI {{ $log['cell']['pci_or_psc'] ?? '-' }}</span>
                                             @else
-                                                <span class="text-slate-400 italic">Tidak terdeteksi</span>
+                                                <span class="text-slate-500 italic">Tidak terdeteksi</span>
                                             @endif
                                         </td>
-                                        <td class="whitespace-nowrap px-6 py-3.5 font-mono text-slate-700 leading-normal">
+                                        <td class="whitespace-nowrap px-6 py-3.5 font-mono text-slate-300 leading-normal">
                                             @if($log['signal'])
                                                 RSRP {{ $log['signal']['rsrp_dbm'] ?? '-' }} dBm<br>
-                                                <span class="text-[10px] text-slate-500">RSRQ {{ $log['signal']['rsrq_db'] ?? '-' }} / SINR {{ $log['signal']['sinr_db'] ?? '-' }}</span>
+                                                <span class="text-[10px] text-slate-400">RSRQ {{ $log['signal']['rsrq_db'] ?? '-' }} / SINR {{ $log['signal']['sinr_db'] ?? '-' }}</span>
                                             @else
                                                 -
                                             @endif
@@ -440,34 +447,11 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-6 py-12 text-center text-xs font-bold text-slate-500">Belum ada log mobile computing dari petugas.</td>
+                                        <td colspan="5" class="px-6 py-12 text-center text-xs font-bold text-slate-400">Belum ada log mobile computing dari petugas.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
-                    </div>
-                </details>
-
-                {{-- Timeline Penanganan --}}
-                <details class="order-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl group">
-                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-black text-slate-900 uppercase tracking-wider">
-                        <span class="flex items-center gap-2"><span>⏱️</span><span>Timeline Log Aktivitas Penanganan</span></span>
-                        <svg class="details-indicator-arrow h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </summary>
-                    <div class="mt-5 border-t border-slate-200/80 pt-5 timeline-container">
-                        @forelse($timeline as $item)
-                            <div class="timeline-item active">
-                                <span class="timeline-dot"></span>
-                                <div class="ml-4">
-                                    <p class="font-black text-slate-900 text-sm leading-snug">{{ $item['label'] }}</p>
-                                    <p class="text-xs text-slate-500 mt-1 font-mono">{{ $item['time']->format('d M Y H:i') }} • Penanggung Jawab: <span class="font-bold text-orange-600">{{ $item['note'] }}</span></p>
-                                </div>
-                            </div>
-                        @empty
-                            <p class="text-xs font-bold text-slate-500 text-center py-4">Belum ada aktivitas terekam.</p>
-                        @endforelse
                     </div>
                 </details>
             </div>
@@ -476,55 +460,55 @@
             <aside class="space-y-6 xl:sticky xl:top-6 xl:self-start">
 
                 @if($isClosed)
-                <div class="rounded-3xl border border-emerald-200 bg-white p-6 shadow-xl">
-                    <h2 class="text-sm font-black text-emerald-700 uppercase tracking-wider border-b border-slate-200/80 pb-4 flex items-center gap-2">
+                <div class="rounded-3xl border border-emerald-500/40 bg-[#1e222b] p-6 shadow-xl">
+                    <h2 class="text-sm font-black text-emerald-400 uppercase tracking-wider border-b border-[#333846] pb-4 flex items-center gap-2">
                         <span>🛡️</span>
                         <span>Rekap Penutupan Operasi</span>
                     </h2>
                     <div class="mt-4 space-y-4">
-                        <div class="rounded-2xl bg-slate-50 p-4 border border-slate-200/80 shadow-sm">
-                            <span class="text-[10px] font-black uppercase tracking-wider text-emerald-700">Status Akhir</span>
-                            <p class="mt-1 text-lg font-black text-slate-900">{{ \App\Http\Controllers\PublicTrackingController::statusLabel($report->status) }}</p>
-                            <p class="mt-1 text-xs font-semibold text-slate-500 font-mono">{{ $closedAt?->format('d M Y, H:i') ?? '-' }}</p>
+                        <div class="rounded-2xl bg-[#242832] p-4 border border-[#333846] shadow-sm">
+                            <span class="text-[10px] font-black uppercase tracking-wider text-emerald-400">Status Akhir</span>
+                            <p class="mt-1 text-lg font-black text-white">{{ \App\Http\Controllers\PublicTrackingController::statusLabel($report->status) }}</p>
+                            <p class="mt-1 text-xs font-semibold text-slate-400 font-mono">{{ $closedAt?->format('d M Y, H:i') ?? '-' }}</p>
                         </div>
 
-                        <div class="rounded-2xl bg-slate-50 p-4 border border-slate-200/80 shadow-sm">
-                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Petugas Penanganan</span>
-                            <p class="mt-1 text-sm font-black text-slate-900">{{ $assignment?->member?->name ?? $report->assignedMember?->name ?? '-' }}</p>
-                            <p class="mt-1 text-xs text-orange-600 font-mono font-bold">{{ $assignment?->member?->phone ?? $report->assignedMember?->phone ?? '-' }}</p>
+                        <div class="rounded-2xl bg-[#242832] p-4 border border-[#333846] shadow-sm">
+                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Petugas Penanganan</span>
+                            <p class="mt-1 text-sm font-black text-white">{{ $assignment?->member?->name ?? $report->assignedMember?->name ?? '-' }}</p>
+                            <p class="mt-1 text-xs text-orange-400 font-mono font-bold">{{ $assignment?->member?->phone ?? $report->assignedMember?->phone ?? '-' }}</p>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
-                            <div class="rounded-2xl bg-slate-50 p-3.5 border border-slate-200/80 shadow-sm">
-                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Jalur Bukti</span>
-                                <p class="mt-1 font-mono text-sm font-black text-orange-600">{{ $evidenceSummary['distance_meters'] >= 1000 ? number_format($evidenceSummary['distance_meters'] / 1000, 2) . ' km' : number_format($evidenceSummary['distance_meters']) . ' m' }}</p>
+                            <div class="rounded-2xl bg-[#242832] p-3.5 border border-[#333846] shadow-sm">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Jalur Bukti</span>
+                                <p class="mt-1 font-mono text-sm font-black text-orange-400">{{ $evidenceSummary['distance_meters'] >= 1000 ? number_format($evidenceSummary['distance_meters'] / 1000, 2) . ' km' : number_format($evidenceSummary['distance_meters']) . ' m' }}</p>
                             </div>
-                            <div class="rounded-2xl bg-slate-50 p-3.5 border border-slate-200/80 shadow-sm">
-                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Titik GPS</span>
-                                <p class="mt-1 font-mono text-sm font-black text-slate-900">{{ number_format($evidenceSummary['gps_points']) }}</p>
+                            <div class="rounded-2xl bg-[#242832] p-3.5 border border-[#333846] shadow-sm">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Titik GPS</span>
+                                <p class="mt-1 font-mono text-sm font-black text-white">{{ number_format($evidenceSummary['gps_points']) }}</p>
                             </div>
-                            <div class="rounded-2xl bg-slate-50 p-3.5 border border-slate-200/80 shadow-sm">
-                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Log BTS</span>
-                                <p class="mt-1 font-mono text-sm font-black text-slate-900">{{ number_format($evidenceSummary['cell_observations']) }}</p>
+                            <div class="rounded-2xl bg-[#242832] p-3.5 border border-[#333846] shadow-sm">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Log BTS</span>
+                                <p class="mt-1 font-mono text-sm font-black text-white">{{ number_format($evidenceSummary['cell_observations']) }}</p>
                             </div>
-                            <div class="rounded-2xl bg-slate-50 p-3.5 border border-slate-200/80 shadow-sm">
-                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Pindah Jaringan</span>
-                                <p class="mt-1 font-mono text-sm font-black text-slate-900">{{ number_format($evidenceSummary['network_changes']) }}x</p>
+                            <div class="rounded-2xl bg-[#242832] p-3.5 border border-[#333846] shadow-sm">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Pindah Jaringan</span>
+                                <p class="mt-1 font-mono text-sm font-black text-white">{{ number_format($evidenceSummary['network_changes']) }}x</p>
                             </div>
                         </div>
 
                         <a href="{{ $evidenceUrl }}" target="_blank" class="flex items-center justify-center rounded-xl bg-orange-600 hover:bg-orange-500 py-3.5 text-xs sm:text-sm font-black text-white transition-all shadow-md shadow-orange-500/20 active:scale-95">
                             🖨️ Cetak Bukti Operasi
                         </a>
-                        <a href="{{ route('admin.reports.index') }}" class="flex items-center justify-center rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 py-3.5 text-xs sm:text-sm font-black text-slate-700 transition-all active:scale-95 shadow-sm">
+                        <a href="{{ route('admin.reports.index') }}" class="flex items-center justify-center rounded-xl border border-[#333846] bg-[#242832] hover:bg-[#2c303d] py-3.5 text-xs sm:text-sm font-black text-slate-200 transition-all active:scale-95 shadow-sm">
                             📋 Buka Riwayat Laporan
                         </a>
                     </div>
                 </div>
                 @else
                 {{-- Monitoring Petugas --}}
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl">
-                    <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider border-b border-slate-200/80 pb-4 flex items-center justify-between">
+                <div class="rounded-3xl border border-[#333846] bg-[#1e222b] p-6 shadow-xl">
+                    <h2 class="text-sm font-black text-white uppercase tracking-wider border-b border-[#333846] pb-4 flex items-center justify-between">
                         <span class="flex items-center gap-2"><span>🧑‍🚒</span><span>Petugas Lapangan</span></span>
                         @if($assignment?->member)
                             <span class="inline-flex h-2 w-2 rounded-full bg-red-500 animate-ping"></span>
@@ -532,52 +516,52 @@
                     </h2>
                     @if($assignment?->member)
                         <div class="mt-4 space-y-3.5">
-                            <div class="rounded-2xl bg-slate-50 p-4 border border-slate-200/80 flex items-center gap-3.5 shadow-sm">
-                                <div class="h-11 w-11 rounded-xl bg-orange-100 border border-orange-200 flex items-center justify-center font-black text-orange-700 text-sm uppercase shrink-0 shadow-sm">
+                            <div class="rounded-2xl bg-[#242832] p-4 border border-[#333846] flex items-center gap-3.5 shadow-sm">
+                                <div class="h-11 w-11 rounded-xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center font-black text-orange-400 text-sm uppercase shrink-0 shadow-sm">
                                     {{ substr($assignment->member->name, 0, 2) }}
                                 </div>
                                 <div class="min-w-0">
-                                    <p class="text-sm font-black text-slate-900 truncate leading-tight">{{ $assignment->member->name }}</p>
-                                    <p class="text-xs text-orange-600 font-mono font-bold mt-1">{{ $assignment->member->phone }}</p>
+                                    <p class="text-sm font-black text-white truncate leading-tight">{{ $assignment->member->name }}</p>
+                                    <p class="text-xs text-orange-400 font-mono font-bold mt-1">{{ $assignment->member->phone }}</p>
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
-                                <div class="rounded-2xl bg-slate-50 p-3.5 border border-slate-200/80 shadow-sm">
-                                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">Status Tugas</span>
-                                    <p id="assignmentStatusText" class="text-xs sm:text-sm font-black text-slate-900 leading-tight">
+                                <div class="rounded-2xl bg-[#242832] p-3.5 border border-[#333846] shadow-sm">
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Status Tugas</span>
+                                    <p id="assignmentStatusText" class="text-xs sm:text-sm font-black text-white leading-tight">
                                         {{ \App\Http\Controllers\PublicTrackingController::assignmentLabel($assignment->status) }}
                                     </p>
                                 </div>
-                                <div class="rounded-2xl {{ $memberOnline ? 'bg-emerald-50 border border-emerald-200' : 'bg-slate-50 border border-slate-200/80' }} p-3.5 flex flex-col justify-between shadow-sm">
-                                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">Koneksi GPS</span>
-                                    <p id="memberOnlineText" class="text-xs sm:text-sm font-black leading-none {{ $memberOnline ? 'text-emerald-700' : 'text-slate-500' }}">
+                                <div class="rounded-2xl {{ $memberOnline ? 'bg-emerald-500/15 border border-emerald-500/40' : 'bg-[#242832] border border-[#333846]' }} p-3.5 flex flex-col justify-between shadow-sm">
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Koneksi GPS</span>
+                                    <p id="memberOnlineText" class="text-xs sm:text-sm font-black leading-none {{ $memberOnline ? 'text-emerald-400' : 'text-slate-500' }}">
                                         {{ $memberOnline ? 'Online' : 'Offline' }}
                                     </p>
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
-                                <div class="rounded-2xl bg-slate-50 p-3.5 border border-slate-200/80 shadow-sm">
-                                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">Sisa Jarak</span>
-                                    <p id="assignmentDistanceText" class="text-xs sm:text-sm font-mono font-black text-orange-600 leading-tight">
+                                <div class="rounded-2xl bg-[#242832] p-3.5 border border-[#333846] shadow-sm">
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Sisa Jarak</span>
+                                    <p id="assignmentDistanceText" class="text-xs sm:text-sm font-mono font-black text-orange-400 leading-tight">
                                         {{ $assignment->distance_meters ? number_format($assignment->distance_meters / 1000, 2) . ' km' : '-' }}
                                     </p>
                                 </div>
-                                <div class="rounded-2xl bg-slate-50 p-3.5 border border-slate-200/80 shadow-sm">
-                                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">Estimasi ETA</span>
-                                    <p id="assignmentDurationText" class="text-xs sm:text-sm font-mono font-black text-blue-600 leading-tight">
+                                <div class="rounded-2xl bg-[#242832] p-3.5 border border-[#333846] shadow-sm">
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Estimasi ETA</span>
+                                    <p id="assignmentDurationText" class="text-xs sm:text-sm font-mono font-black text-blue-400 leading-tight">
                                         {{ $assignment->duration_seconds ? round($assignment->duration_seconds / 60) . ' menit' : '-' }}
                                     </p>
                                 </div>
                             </div>
 
-                            <div class="rounded-2xl bg-slate-50 p-3.5 border border-slate-200/80 shadow-sm">
-                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">Pembaruan GPS</span>
-                                <p id="memberLastSeenText" class="text-xs sm:text-sm font-black text-slate-900">
+                            <div class="rounded-2xl bg-[#242832] p-3.5 border border-[#333846] shadow-sm">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Pembaruan GPS</span>
+                                <p id="memberLastSeenText" class="text-xs sm:text-sm font-black text-white">
                                     {{ $memberLocation?->last_seen_at?->diffForHumans() ?? '-' }}
                                 </p>
-                                <p id="memberGpsMetaText" class="text-[10px] text-slate-500 mt-1 font-mono leading-tight">
+                                <p id="memberGpsMetaText" class="text-[10px] text-slate-400 mt-1 font-mono leading-tight">
                                     {{ $memberLocation?->network_type ?? 'unknown' }}{{ $memberLocation?->accuracy ? ' - akurasi ' . number_format($memberLocation->accuracy) . ' m' : '' }}
                                 </p>
                             </div>
@@ -588,79 +572,100 @@
                             @unless($isClosed)
                                 <form method="POST" action="{{ route('admin.reports.cancel-assignment', $report) }}" onsubmit="return confirm('Batalkan petugas yang sedang ditugaskan? Laporan tetap aktif dan bisa ditugaskan ulang.');">
                                     @csrf
-                                    <button type="submit" class="flex w-full items-center justify-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-600 hover:text-white py-3 text-xs font-black text-amber-700 transition-all active:scale-95 shadow-sm">
+                                    <button type="submit" class="flex w-full items-center justify-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/15 hover:bg-amber-600 hover:text-white py-3 text-xs font-black text-amber-300 transition-all active:scale-95 shadow-sm">
                                         ⚠️ Batalkan Petugas
                                     </button>
-                                    <p class="mt-2 text-[10px] font-semibold text-slate-500 text-center">Menghentikan alarm petugas dan membuka penugasan ulang.</p>
+                                    <p class="mt-2 text-[10px] font-semibold text-slate-400 text-center">Menghentikan alarm petugas dan membuka penugasan ulang.</p>
                                 </form>
                             @endunless
                         </div>
                     @else
-                        <p class="mt-4 rounded-2xl bg-slate-50 border border-slate-200/80 p-6 text-xs font-bold text-slate-500 text-center shadow-sm">Belum ada petugas ditugaskan untuk laporan ini.</p>
+                        <p class="mt-4 rounded-2xl bg-[#242832] border border-[#333846] p-6 text-xs font-bold text-slate-400 text-center shadow-sm">Belum ada petugas ditugaskan untuk laporan ini.</p>
                     @endif
                 </div>
                 @endif
 
                 @unless(in_array($report->status, [\App\Models\Report::STATUS_COMPLETED, \App\Models\Report::STATUS_CANCELLED], true))
                 {{-- Anggota Terdekat --}}
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl">
-                    <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider border-b border-slate-200/80 pb-3 flex items-center gap-2">
+                <div class="rounded-3xl border border-[#333846] bg-[#1e222b] p-6 shadow-xl">
+                    <h2 class="text-sm font-black text-white uppercase tracking-wider border-b border-[#333846] pb-3 flex items-center gap-2">
                         <span>📡</span>
                         <span>Rekomendasi Anggota Terdekat</span>
                     </h2>
-                    <p class="text-xs font-semibold text-slate-600 mt-2">Radius pencarian dihitung otomatis dari koordinat GPS terakhir anggota.</p>
+                    <p class="text-xs font-semibold text-slate-400 mt-2">Radius pencarian dihitung otomatis dari koordinat GPS terakhir anggota.</p>
                     <div class="mt-4 space-y-3">
                         @forelse($nearestMembers as $member)
-                            <form method="POST" action="{{ route('admin.reports.assign-member', $report) }}" class="rounded-2xl border border-slate-200/80 p-4 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 transition-all shadow-sm group">
+                            <form method="POST" action="{{ route('admin.reports.assign-member', $report) }}" class="rounded-2xl border border-[#333846] p-4 bg-[#242832] hover:bg-[#2c303d] hover:border-orange-500 transition-all shadow-sm group">
                                 @csrf
                                 <input type="hidden" name="member_id" value="{{ $member->id }}">
                                 <div class="flex items-start justify-between gap-2.5">
                                     <div class="min-w-0">
-                                        <p class="font-black text-slate-900 text-sm truncate leading-tight group-hover:text-orange-600 transition-colors">{{ $member->name }}</p>
-                                        <p class="text-xs text-slate-500 mt-1.5 font-mono font-bold">
-                                            {{ strtoupper($member->network_type) }} • <span class="text-orange-600">{{ number_format($member->distance_meters) }} m</span>
+                                        <p class="font-black text-white text-sm truncate leading-tight group-hover:text-orange-400 transition-colors">{{ $member->name }}</p>
+                                        <p class="text-xs text-slate-400 mt-1.5 font-mono font-bold">
+                                            {{ strtoupper($member->network_type) }} • <span class="text-orange-400">{{ number_format($member->distance_meters) }} m</span>
                                         </p>
                                     </div>
-                                    <span class="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider border {{ $member->is_online ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-200 text-slate-600 border-slate-300' }}">
+                                    <span class="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider border {{ $member->is_online ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-[#181a20] text-slate-400 border-[#333846]' }}">
                                         <span class="w-1.5 h-1.5 rounded-full {{ $member->is_online ? 'bg-emerald-500 animate-pulse' : 'bg-slate-500' }}"></span>
                                         {{ $member->is_online ? 'Online' : 'Offline' }}
                                     </span>
                                 </div>
-                                <button type="submit" class="mt-4 w-full rounded-xl bg-slate-900 hover:bg-orange-600 text-white py-2.5 text-center text-xs font-black transition-all active:scale-95 shadow-sm">
+                                <button type="submit" class="mt-4 w-full rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white py-2.5 text-center text-xs font-black transition-all active:scale-95 shadow-sm">
                                     🚀 Tugaskan Anggota Ini
                                 </button>
                             </form>
                         @empty
-                            <div class="rounded-2xl bg-slate-50 border border-slate-200/80 p-6 text-xs font-bold text-slate-500 text-center shadow-sm">Belum ada anggota dengan lokasi aktif.</div>
+                            <div class="rounded-2xl bg-[#242832] border border-[#333846] p-6 text-xs font-bold text-slate-400 text-center shadow-sm">Belum ada anggota dengan lokasi aktif.</div>
                         @endforelse
                     </div>
                 </div>
 
                 {{-- Batalkan Laporan --}}
-                <form method="POST" action="{{ route('admin.reports.cancel', $report) }}" class="rounded-3xl border border-red-200 bg-white p-6 space-y-4 shadow-xl">
+                <form method="POST" action="{{ route('admin.reports.cancel', $report) }}" class="rounded-3xl border border-red-500/40 bg-[#1e222b] p-6 space-y-4 shadow-xl">
                     @csrf
                     <div>
-                        <h2 class="font-black text-red-700 text-sm uppercase tracking-wider flex items-center gap-2">
+                        <h2 class="font-black text-red-400 text-sm uppercase tracking-wider flex items-center gap-2">
                             <span>🛑</span>
                             <span>Batalkan Laporan</span>
                         </h2>
-                        <p class="text-xs font-semibold text-slate-600 mt-1">Gunakan bila terkonfirmasi laporan palsu atau evakuasi batal dilakukan.</p>
+                        <p class="text-xs font-semibold text-slate-400 mt-1">Gunakan bila terkonfirmasi laporan palsu atau evakuasi batal dilakukan.</p>
                     </div>
                     <div>
-                        <label for="closure_notes" class="block text-[11px] font-black text-slate-700 uppercase tracking-wider">Alasan Pembatalan <span class="text-red-600">*</span></label>
-                        <textarea id="closure_notes" name="closure_notes" rows="3" minlength="10" maxlength="500" required class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 placeholder:text-slate-400 font-mono shadow-sm" placeholder="Jelaskan alasan detail pembatalan laporan disini..."></textarea>
+                        <label for="closure_notes" class="block text-[11px] font-black text-slate-300 uppercase tracking-wider">Alasan Pembatalan <span class="text-red-400">*</span></label>
+                        <textarea id="closure_notes" name="closure_notes" rows="3" minlength="10" maxlength="500" required class="mt-2 w-full rounded-xl border border-[#333846] bg-[#242832] px-3.5 py-2.5 text-xs sm:text-sm text-white outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 placeholder:text-slate-500 font-mono shadow-sm" placeholder="Jelaskan alasan detail pembatalan laporan disini..."></textarea>
                         @error('closure_notes')
-                            <p class="mt-1.5 text-xs font-bold text-red-600">{{ $message }}</p>
+                            <p class="mt-1.5 text-xs font-bold text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
-                    <button type="submit" class="w-full rounded-xl bg-red-50 border border-red-200 hover:bg-red-600 hover:text-white py-3 text-center text-xs font-black text-red-700 shadow-sm transition-all active:scale-95">
+                    <button type="submit" class="w-full rounded-xl bg-red-500/20 border border-red-500/40 hover:bg-red-600 hover:text-white py-3 text-center text-xs font-black text-red-300 shadow-sm transition-all active:scale-95">
                         ⚠️ Batalkan Laporan Permanen
                     </button>
                 </form>
                 @endunless
+
+                {{-- Timeline Operasi --}}
+                <div class="rounded-3xl border border-[#333846] bg-[#1e222b] p-6 shadow-xl">
+                    <h2 class="text-sm font-black text-white uppercase tracking-wider border-b border-[#333846] pb-4 flex items-center gap-2">
+                        <span>⏱️</span>
+                        <span>Kronologi Operasi</span>
+                    </h2>
+                    <div class="mt-5 timeline-container">
+                        @forelse($timeline as $item)
+                            <div class="timeline-item active">
+                                <span class="timeline-dot"></span>
+                                <div class="ml-4">
+                                    <p class="font-black text-white text-sm leading-snug">{{ $item['label'] }}</p>
+                                    <p class="text-xs text-slate-400 mt-1 font-mono">{{ $item['time']->format('d M Y H:i') }} • Peringkat: <span class="font-bold text-orange-400">{{ $item['note'] }}</span></p>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-xs font-bold text-slate-400 text-center py-4">Belum ada aktivitas terekam.</p>
+                        @endforelse
+                    </div>
+                </div>
             </aside>
-        </div>
-    </section>
+        </main>
+    </div>
 
     @push('scripts')
         <script>
@@ -768,7 +773,7 @@
                 );
 
                 if (!logs?.length) {
-                    body.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-sm font-semibold text-slate-500">Belum ada log mobile computing dari petugas.</td></tr>';
+                    body.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-sm font-semibold text-slate-400">Belum ada log mobile computing dari petugas.</td></tr>';
                     return;
                 }
 
@@ -776,22 +781,22 @@
                     const cell = log.cell;
                     const signal = log.signal;
                     return `
-                        <tr class="align-top hover:bg-slate-50/50 transition-colors">
-                            <td class="whitespace-nowrap px-4 py-3 font-bold text-slate-800">${escapeHtml(localTime(log.recorded_at_iso))}<br><span class="font-normal text-[10px] text-slate-500">${escapeHtml(localDate(log.recorded_at_iso))}</span></td>
-                            <td class="px-4 py-3 font-mono text-slate-700 leading-normal">
+                        <tr class="align-top hover:bg-[#242832] transition-colors">
+                            <td class="whitespace-nowrap px-4 py-3 font-bold text-white">${escapeHtml(localTime(log.recorded_at_iso))}<br><span class="font-normal text-[10px] text-slate-400">${escapeHtml(localDate(log.recorded_at_iso))}</span></td>
+                            <td class="px-4 py-3 font-mono text-slate-300 leading-normal">
                                 ${Number(log.latitude).toFixed(6)}, ${Number(log.longitude).toFixed(6)}
-                                <br><span class="font-sans text-[10px] text-slate-550">Akurasi ${log.accuracy !== null && log.accuracy !== undefined ? Math.round(log.accuracy) + ' m' : '-'}</span>
+                                <br><span class="font-sans text-[10px] text-orange-400 font-bold">Akurasi ${log.accuracy !== null && log.accuracy !== undefined ? Math.round(log.accuracy) + ' m' : '-'}</span>
                             </td>
-                            <td class="whitespace-nowrap px-4 py-3 font-extrabold text-slate-800">${escapeHtml(String(log.network_type || 'unknown').toUpperCase())}</td>
-                            <td class="px-4 py-3 text-slate-700 leading-normal">
+                            <td class="whitespace-nowrap px-4 py-3 font-extrabold text-white">${escapeHtml(String(log.network_type || 'unknown').toUpperCase())}</td>
+                            <td class="px-4 py-3 text-slate-300 leading-normal">
                                 ${cell ? `
-                                    <span class="font-black text-amber-900">${escapeHtml(cell.operator || 'Operator')} ${escapeHtml(cell.radio_type || 'CELL')}</span>
-                                    <br><span class="font-mono text-[10px]">Cell ${escapeHtml(cell.cell_id || '-')}</span>
+                                    <span class="font-black text-amber-300">${escapeHtml(cell.operator || 'Operator')} ${escapeHtml(cell.radio_type || 'CELL')}</span>
+                                    <br><span class="font-mono text-[10px] text-slate-400">Cell ${escapeHtml(cell.cell_id || '-')}</span>
                                     <br><span class="text-[10px] text-slate-500 font-medium">TAC/LAC ${escapeHtml(cell.tac_or_lac || '-')} - PCI ${escapeHtml(cell.pci_or_psc || '-')}</span>
-                                ` : '<span class="text-slate-400 italic">Tidak tersedia</span>'}
+                                ` : '<span class="text-slate-500 italic">Tidak tersedia</span>'}
                             </td>
-                            <td class="whitespace-nowrap px-4 py-3 font-mono text-slate-700 leading-normal">
-                                ${signal ? `RSRP ${escapeHtml(signal.rsrp_dbm ?? '-')} dBm<br><span class="text-[10px] text-slate-500">RSRQ ${escapeHtml(signal.rsrq_db ?? '-')} / SINR ${escapeHtml(signal.sinr_db ?? '-')}</span>` : '-'}
+                            <td class="whitespace-nowrap px-4 py-3 font-mono text-slate-300 leading-normal">
+                                ${signal ? `RSRP ${escapeHtml(signal.rsrp_dbm ?? '-')} dBm<br><span class="text-[10px] text-slate-400">RSRQ ${escapeHtml(signal.rsrq_db ?? '-')} / SINR ${escapeHtml(signal.sinr_db ?? '-')}</span>` : '-'}
                             </td>
                         </tr>
                     `;
@@ -831,9 +836,9 @@
                         icon: TimsarMap.icon('cell', { pulse: false }),
                     }).addTo(map).bindPopup(`
                         <strong>${isFirst ? 'BTS awal terekam' : 'BTS berubah'}</strong><br>
-                        <span class="text-xs">${escapeHtml(cellLabel(point.cell))}</span><br>
-                        <span class="text-xs text-slate-500">${escapeHtml(signalLabel(point))}</span><br>
-                        <span class="text-xs text-slate-500">${escapeHtml(new Date(point.observed_at).toLocaleString('id-ID'))}</span>
+                        <span class="text-xs text-slate-200">${escapeHtml(cellLabel(point.cell))}</span><br>
+                        <span class="text-xs text-slate-400">${escapeHtml(signalLabel(point))}</span><br>
+                        <span class="text-xs text-slate-400">${escapeHtml(new Date(point.observed_at).toLocaleString('id-ID'))}</span>
                     `);
                     cellMarkers.push(marker);
                 });
@@ -850,13 +855,13 @@
                 document.getElementById('handoverCountText').textContent = `${cellPoints.length} titik BTS / ${handovers.length} handover`;
                 document.getElementById('handoverTimeline').innerHTML = cellPoints.length
                     ? cellPoints.slice().reverse().map((point) => `
-                        <button type="button" class="w-full rounded-xl border border-amber-100 bg-amber-50/40 p-3.5 text-left hover:bg-amber-50 transition-all hover:border-amber-200" data-cell-lat="${point.latitude}" data-cell-lng="${point.longitude}">
-                            <span class="block text-xs font-black text-amber-900">${point.event === 'first' ? 'BTS Awal' : 'BTS Berubah'} - ${escapeHtml(cellLabel(point.cell))}</span>
-                            <span class="mt-1 block text-xs text-slate-600 font-medium">${escapeHtml(new Date(point.observed_at).toLocaleString('id-ID'))} • ${escapeHtml(signalLabel(point))}</span>
-                            <span class="mt-1.5 block font-mono text-[10px] text-slate-450">Koordinat: ${Number(point.latitude).toFixed(5)}, ${Number(point.longitude).toFixed(5)}</span>
+                        <button type="button" class="w-full rounded-xl border border-[#333846] bg-[#181a20] p-3.5 text-left hover:bg-[#242832] transition-all hover:border-orange-500" data-cell-lat="${point.latitude}" data-cell-lng="${point.longitude}">
+                            <span class="block text-xs font-black text-amber-300">${point.event === 'first' ? 'BTS Awal' : 'BTS Berubah'} - ${escapeHtml(cellLabel(point.cell))}</span>
+                            <span class="mt-1 block text-xs text-slate-300 font-medium">${escapeHtml(new Date(point.observed_at).toLocaleString('id-ID'))} • ${escapeHtml(signalLabel(point))}</span>
+                            <span class="mt-1.5 block font-mono text-[10px] text-slate-400">Koordinat: ${Number(point.latitude).toFixed(5)}, ${Number(point.longitude).toFixed(5)}</span>
                         </button>
                     `).join('')
-                    : '<p class="rounded-lg bg-slate-50 p-4 text-center text-xs text-slate-550">Belum ada data BTS dari aplikasi Android anggota.</p>';
+                    : '<p class="rounded-lg bg-[#242832] p-4 text-center text-xs text-slate-400">Belum ada data BTS dari aplikasi Android anggota.</p>';
 
                 document.querySelectorAll('[data-cell-lat]').forEach((button) => {
                     button.addEventListener('click', () => map.setView([
@@ -911,7 +916,7 @@
                     const onlineText = document.getElementById('memberOnlineText');
                     if (onlineText) {
                         onlineText.textContent = data.member.is_online ? 'Online' : 'Offline';
-                        onlineText.className = `font-black ${data.member.is_online ? 'text-emerald-700' : 'text-slate-500'}`;
+                        onlineText.className = `font-black ${data.member.is_online ? 'text-emerald-400' : 'text-slate-500'}`;
                     }
 
                     document.getElementById('memberLastSeenText')?.replaceChildren(document.createTextNode(
