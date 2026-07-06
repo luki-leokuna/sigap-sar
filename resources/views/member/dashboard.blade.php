@@ -232,7 +232,7 @@
             let wakeLockWanted = false;
 
             const targetAccuracyMeters = 50;
-            const maxAcceptedAccuracyMeters = 120;
+            const maxAcceptedAccuracyMeters = 1500;
             const warmupMinSamples = 3;
             const warmupMaxMilliseconds = 12000;
             const gpsStatus = document.getElementById('gpsStatus');
@@ -246,7 +246,15 @@
 
             function networkType() {
                 if (!navigator.onLine) return 'offline';
+                if (window.TimsarNativeBridge?.networkType) {
+                    const nativeType = window.TimsarNativeBridge.networkType();
+                    if (nativeType) return nativeType;
+                }
                 const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                if (conn?.type && conn.type !== 'unknown' && conn.type !== 'other' && conn.type !== 'none') {
+                    if (conn.type === 'cellular') return conn.effectiveType || 'cellular';
+                    return conn.type;
+                }
                 return conn?.effectiveType || conn?.type || 'unknown';
             }
 

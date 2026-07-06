@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class TrackingService
 {
-    private const MAX_ACCEPTED_ACCURACY_METERS = 120;
+    private const MAX_ACCEPTED_ACCURACY_METERS = 1500;
     private const MAX_REASONABLE_SPEED_KMH = 180;
     private const MIN_ROUTE_RECALCULATION_DISTANCE_METERS = 20;
     private const STATIONARY_SPEED_KMH = 4;
@@ -130,7 +130,9 @@ class TrackingService
         $accuracyBuffer = max(60, $accuracy ?? 0, $previousAccuracy ?? 0);
 
         if ($distanceMeters > $accuracyBuffer && $speedKmh > self::MAX_REASONABLE_SPEED_KMH) {
-            return false;
+            if ($seconds < 10 && ($accuracy === null || $accuracy > 500)) {
+                return false;
+            }
         }
 
         if ($this->isLikelyStationaryNoise($distanceMeters, $accuracy, $previousAccuracy, $data)) {

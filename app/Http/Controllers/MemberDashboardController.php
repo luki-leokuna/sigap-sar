@@ -109,6 +109,7 @@ class MemberDashboardController extends Controller
                 'distance_meters' => $assignment->distance_meters,
                 'duration_seconds' => $assignment->duration_seconds,
                 'route_geometry' => $assignment->route_geometry_json,
+                'route_steps' => $assignment->route_steps_json,
                 'report' => [
                     'tracking_code' => $assignment->report->tracking_code,
                     'incident_type' => $assignment->report->incident_type,

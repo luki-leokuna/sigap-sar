@@ -1,227 +1,281 @@
 @php
     $reporterPhone = 'tel:' . preg_replace('/[^\d+]/', '', $assignment->report->reporter_phone);
     $assignmentClosed = in_array($assignment->status, ['completed', 'cancelled'], true);
-    $navigationMode = $assignment->status === 'on_the_way';
+    $navigationMode = !$assignmentClosed;
 @endphp
 
-<x-layouts.app title="Mode Tugas TIMSAR" :hide-chrome="$navigationMode" :full-bleed="$navigationMode">
-
-    <section class="{{ $navigationMode ? 'space-y-0 bg-white' : 'space-y-4' }}">
+<x-layouts.app title="Navigasi Tugas - Tema Maxim Driver" :hideChrome="true" :fullBleed="true">
+    @push('scripts')
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+            body, .timsar-maxim-driver {
+                font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
+                background-color: #181a20 !important;
+                color: #e2e8f0 !important;
+                overflow: hidden;
+            }
+            #bottomSheet {
+                transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+                box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+            }
+            #bottomSheet.peek-mode {
+                transform: translateY(calc(100% - 76px));
+            }
+            #bottomSheet.expanded-mode {
+                transform: translateY(0);
+            }
+            #assignmentMap {
+                filter: contrast(1.05) saturate(1.1);
+            }
+            ::-webkit-scrollbar { width: 5px; }
+            ::-webkit-scrollbar-track { background: #1e222b; }
+            ::-webkit-scrollbar-thumb { background: #333846; border-radius: 4px; }
+            #assignmentMap .leaflet-bottom { bottom: 84px; }
+            #assignmentMap .leaflet-control-attribution { max-width: 42vw; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+            #assignmentMap .leaflet-control-zoom { margin-top: 68px; }
+        </style>
         @if($navigationMode)
-            <div class="border-b border-slate-200 bg-white px-3 py-1.5 shadow-sm">
-                <details class="group">
-                    <summary class="flex cursor-pointer list-none items-center gap-2 [&::-webkit-details-marker]:hidden">
-                        <span class="shrink-0 rounded-full bg-red-600 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white">OTW</span>
-                        <span class="min-w-0 flex-1">
-                            <span class="block truncate text-sm font-black leading-tight text-slate-950">{{ $assignment->report->incident_type }}</span>
-                            <span class="block truncate text-[11px] font-semibold text-slate-500">{{ $assignment->report->tracking_code }} - {{ $assignment->report->reporter_name }}</span>
-                        </span>
-                        <span class="shrink-0 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-black uppercase text-slate-600 group-open:bg-slate-900 group-open:text-white">Info</span>
-                    </summary>
-                    <span id="assignmentStatusText" class="hidden">{{ \App\Http\Controllers\PublicTrackingController::assignmentLabel($assignment->status) }}</span>
-
-                    <div class="mt-1.5 grid grid-cols-3 gap-1.5 text-center">
-                        <div class="rounded-lg bg-slate-50 px-1.5 py-1">
-                            <p class="text-[9px] font-black uppercase text-slate-500">Jarak</p>
-                            <p id="distanceText" class="truncate text-xs font-black">{{ $assignment->distance_meters ? number_format($assignment->distance_meters / 1000, 2) . ' km' : '-' }}</p>
-                        </div>
-                        <div class="rounded-lg bg-slate-50 px-1.5 py-1">
-                            <p class="text-[9px] font-black uppercase text-slate-500">ETA</p>
-                            <p id="durationText" class="truncate text-xs font-black">{{ $assignment->duration_seconds ? round($assignment->duration_seconds / 60) . ' menit' : '-' }}</p>
-                        </div>
-                        <div class="rounded-lg bg-slate-50 px-1.5 py-1">
-                            <p class="text-[9px] font-black uppercase text-slate-500">GPS</p>
-                            <p id="gpsStatus" class="truncate text-xs font-black">Mengaktifkan...</p>
-                        </div>
-                    </div>
-                </details>
-            </div>
-        @else
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="rounded-full {{ $assignmentClosed ? 'bg-slate-700' : 'bg-red-600' }} px-3 py-1 text-xs font-black uppercase tracking-wide text-white">
-                            {{ $assignmentClosed ? 'Tugas ditutup' : 'Sedang bertugas' }}
-                        </span>
-                        <span class="rounded-full {{ $assignmentClosed ? 'bg-slate-100 text-slate-700' : 'bg-red-50 text-red-700' }} px-3 py-1 text-xs font-black uppercase tracking-wide">{{ \App\Http\Controllers\PublicTrackingController::assignmentLabel($assignment->status) }}</span>
-                    </div>
-                    <p class="mt-3 text-xs font-black uppercase text-red-600">{{ $assignment->report->tracking_code }}</p>
-                    <h1 class="mt-1 text-2xl font-black leading-tight md:text-3xl">{{ $assignment->report->incident_type }}</h1>
-                    <p class="mt-2 text-sm font-semibold text-slate-600">{{ $assignment->report->description }}</p>
-                </div>
-                <a href="{{ route('member.dashboard') }}" class="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-black text-white">
-                    Dashboard
-                </a>
-            </div>
-
-            <div class="mt-4 grid grid-cols-2 gap-2 md:grid-cols-4">
-                <div class="rounded-xl bg-slate-50 p-3">
-                    <p class="text-[11px] font-black uppercase text-slate-500">Status</p>
-                    <p id="assignmentStatusText" class="mt-1 font-black">{{ \App\Http\Controllers\PublicTrackingController::assignmentLabel($assignment->status) }}</p>
-                </div>
-                <div class="rounded-xl bg-slate-50 p-3">
-                    <p class="text-[11px] font-black uppercase text-slate-500">Jarak</p>
-                    <p id="distanceText" class="mt-1 font-black">{{ $assignment->distance_meters ? number_format($assignment->distance_meters / 1000, 2) . ' km' : '-' }}</p>
-                </div>
-                <div class="rounded-xl bg-slate-50 p-3">
-                    <p class="text-[11px] font-black uppercase text-slate-500">Estimasi</p>
-                    <p id="durationText" class="mt-1 font-black">{{ $assignment->duration_seconds ? round($assignment->duration_seconds / 60) . ' menit' : '-' }}</p>
-                </div>
-                <div class="rounded-xl bg-slate-50 p-3">
-                    <p class="text-[11px] font-black uppercase text-slate-500">GPS saya</p>
-                    <p id="gpsStatus" class="mt-1 font-black">Mengaktifkan...</p>
-                </div>
-            </div>
-        </div>
+            <script src="https://unpkg.com/leaflet-rotate@0.2.7/dist/leaflet-rotate-src.js"></script>
         @endif
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sheet = document.getElementById('bottomSheet');
+                const handle = document.getElementById('sheetHandle');
+                const toggleBtn = document.getElementById('toggleSheetBtn');
+                const toggleIcon = document.getElementById('toggleSheetIcon');
+                const peekHeader = document.getElementById('peekHeader');
 
-        <div class="{{ $navigationMode ? 'overflow-hidden bg-white shadow-sm' : 'overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm' }}">
-            <div class="relative">
-                <div id="assignmentMap" class="{{ $navigationMode ? 'h-[calc(100dvh-112px)] min-h-[480px] md:h-[calc(100vh-112px)] md:min-h-[640px]' : 'h-[62vh] min-h-[430px] md:h-[680px]' }}"></div>
+                function toggleSheet() {
+                    if (!sheet) return;
+                    const isExpanded = sheet.classList.contains('expanded-mode');
+                    if (isExpanded) {
+                        sheet.classList.remove('expanded-mode');
+                        sheet.classList.add('peek-mode');
+                        if (toggleIcon) toggleIcon.textContent = '▲ Buka';
+                    } else {
+                        sheet.classList.remove('peek-mode');
+                        sheet.classList.add('expanded-mode');
+                        if (toggleIcon) toggleIcon.textContent = '▼ Ringkas';
+                    }
+                }
 
-                <div class="pointer-events-none absolute left-3 right-3 top-3 z-[500] flex items-start {{ $navigationMode ? 'justify-end' : 'justify-between' }} gap-3">
-                    @unless($navigationMode)
-                    <div class="pointer-events-auto rounded-2xl bg-white/95 p-3 text-slate-900 shadow-lg backdrop-blur">
-                        <p class="text-[11px] font-black uppercase text-slate-500">Navigasi tugas</p>
-                        <p id="mapRouteMeta" class="mt-1 text-sm font-black">Menunggu GPS terbaik...</p>
-                        <div class="mt-2 flex flex-wrap gap-2 text-[11px] font-black text-slate-600">
-                            <span class="inline-flex items-center gap-1"><span class="h-1.5 w-5 rounded-full bg-blue-600"></span>Jalur ditempuh</span>
-                            <span class="inline-flex items-center gap-1"><span class="h-1.5 w-5 rounded-full bg-red-500"></span>Rute tersisa</span>
-                        </div>
-                    </div>
-                    @else
-                        <p id="mapRouteMeta" class="hidden">Menunggu GPS terbaik...</p>
-                    @endunless
-                    <div class="pointer-events-auto grid gap-2">
-                        <button id="focusMeButton" type="button" class="rounded-xl bg-white/95 px-3 py-2 text-sm font-black text-slate-900 shadow-lg">{{ $navigationMode ? 'Ikuti' : 'Saya' }}</button>
-                        <button id="fitRouteButton" type="button" class="rounded-xl bg-white/95 px-3 py-2 text-sm font-black text-slate-900 shadow-lg">Rute</button>
-                    </div>
-                </div>
+                if (handle) handle.addEventListener('click', toggleSheet);
+                if (toggleBtn) toggleBtn.addEventListener('click', toggleSheet);
+                if (peekHeader) peekHeader.addEventListener('click', (e) => {
+                    if (!e.target.closest('button')) toggleSheet();
+                });
+            });
+        </script>
+    @endpush
 
-                @if($navigationMode)
-                    <div id="routeDeviationNotice" class="pointer-events-none absolute left-16 top-3 z-[500] hidden max-w-[65%] rounded-xl bg-amber-500 px-3 py-2 text-xs font-black text-slate-950 shadow-lg">
-                        Keluar jalur. Memperbarui rute...
-                    </div>
-                @else
-                    <div id="routeDeviationNotice" class="hidden"></div>
-                @endif
+    <div class="timsar-maxim-driver relative h-screen w-screen overflow-hidden bg-[#181a20]">
+        
+        {{-- LAYER 1: Full-Screen Map --}}
+        <div id="assignmentMap" class="absolute inset-0 h-full w-full z-0"></div>
 
-                @if($navigationMode)
-                    <p id="accuracyValue" class="hidden">-</p>
-                    <p id="lastSentValue" class="hidden">-</p>
-                    <p id="networkStatus" class="hidden">-</p>
-                    <p id="trailDistanceValue" class="hidden">-</p>
-                    <p id="cellStatusValue" class="hidden">Web</p>
-                @else
-                <div class="pointer-events-none absolute bottom-3 left-3 right-3 z-[500]">
-                    <div class="pointer-events-auto rounded-2xl bg-white/95 p-3 shadow-lg backdrop-blur">
-                        <div class="grid grid-cols-2 gap-2 text-center sm:grid-cols-5">
-                            <div>
-                                <p class="text-[11px] font-black uppercase text-slate-500">Akurasi</p>
-                                <p id="accuracyValue" class="font-black">-</p>
-                            </div>
-                            <div>
-                                <p class="text-[11px] font-black uppercase text-slate-500">Terkirim</p>
-                                <p id="lastSentValue" class="font-black">-</p>
-                            </div>
-                            <div>
-                                <p class="text-[11px] font-black uppercase text-slate-500">Jaringan</p>
-                                <p id="networkStatus" class="font-black">-</p>
-                            </div>
-                            <div>
-                                <p class="text-[11px] font-black uppercase text-slate-500">Ditempuh</p>
-                                <p id="trailDistanceValue" class="font-black">-</p>
-                            </div>
-                            <div>
-                                <p class="text-[11px] font-black uppercase text-slate-500">BTS</p>
-                                <p id="cellStatusValue" class="truncate font-black">Web</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @endif
-            </div>
-        </div>
-
-        @unless($assignmentClosed)
-        <div class="sticky bottom-0 {{ $navigationMode ? 'z-[1000] border-t border-slate-200 bg-white/95 px-3 py-2' : 'z-[700] -mx-4 border-t border-slate-200 bg-white/95 px-4 py-3' }} shadow-[0_-12px_30px_rgba(15,23,42,0.08)] backdrop-blur">
-            <div class="mx-auto grid max-w-7xl {{ $navigationMode ? 'grid-cols-1' : 'grid-cols-2 gap-2 lg:grid-cols-4' }} gap-2">
-                @if($assignment->status === 'assigned')
-                    <form method="POST" action="{{ route('member.assignments.accept', $assignment) }}" class="col-span-2 lg:col-span-2" data-stop-assignment-alarm>
-                        @csrf
-                        <button class="w-full rounded-xl bg-slate-900 px-4 py-4 font-black text-white">Terima</button>
-                    </form>
-                @elseif($assignment->status === 'accepted')
-                    <form method="POST" action="{{ route('member.assignments.start', $assignment) }}" class="col-span-2 lg:col-span-2">
-                        @csrf
-                        <button class="w-full rounded-xl bg-blue-600 px-4 py-4 font-black text-white">Mulai jalan</button>
-                    </form>
-                @elseif($assignment->status === 'on_the_way')
-                    <form method="POST" action="{{ route('member.assignments.arrive', $assignment) }}" class="{{ $navigationMode ? '' : 'col-span-2 lg:col-span-2' }}">
-                        @csrf
-                        <button class="w-full rounded-xl bg-amber-500 px-4 py-3 font-black text-white">Sampai</button>
-                    </form>
-                @elseif($assignment->status === 'arrived')
-                    <form method="POST" action="{{ route('member.assignments.handling', $assignment) }}" class="col-span-2 lg:col-span-2">
-                        @csrf
-                        <button class="w-full rounded-xl bg-purple-600 px-4 py-4 font-black text-white">Tangani</button>
-                    </form>
-                @elseif($assignment->status === 'handling')
-                    <form method="POST" action="{{ route('member.assignments.complete', $assignment) }}" class="col-span-2 lg:col-span-2">
-                        @csrf
-                        <button class="w-full rounded-xl bg-emerald-600 px-4 py-4 font-black text-white">Selesai</button>
-                    </form>
-                @endif
-                @unless($navigationMode)
-                    <button id="wakeLockButton" type="button" class="rounded-xl border border-slate-300 bg-white px-4 py-4 text-center font-black text-slate-800">Layar aktif</button>
-                @else
-                    <button id="wakeLockButton" type="button" class="hidden" aria-hidden="true" tabindex="-1">Layar aktif</button>
-                @endunless
-            </div>
-        </div>
-        @endunless
-
-        @if($navigationMode)
-            <details class="mx-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:mx-6 lg:mx-8">
-                <summary class="cursor-pointer text-sm font-black text-slate-900">Detail laporan dan perangkat</summary>
-                <div class="mt-4 grid gap-3 md:grid-cols-3">
-                    <a href="{{ $reporterPhone }}" class="rounded-xl bg-slate-50 p-3 hover:bg-red-50">
-                        <p class="text-xs font-black uppercase text-slate-500">Pelapor</p>
-                        <p class="mt-1 font-black">{{ $assignment->report->reporter_name }}</p>
-                        <p class="text-sm text-slate-500">{{ $assignment->report->reporter_phone }}</p>
+        {{-- LAYER 2: Floating Top Pill Header --}}
+        <header class="absolute top-4 left-4 right-4 z-20 max-w-lg mx-auto pointer-events-none">
+            <div class="pointer-events-auto rounded-full bg-[#181a20]/90 backdrop-blur-md border border-[#333846] p-2 sm:p-2.5 px-4 shadow-2xl flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <a href="{{ route('member.dashboard') }}" class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#242832] hover:bg-orange-500/20 text-slate-300 hover:text-orange-400 border border-[#333846] transition-all" title="Kembali ke Dashboard">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                     </a>
-                    <div class="rounded-xl bg-slate-50 p-3">
-                        <p class="text-xs font-black uppercase text-slate-500">Lokasi kejadian</p>
-                        <p class="mt-1 font-black">{{ number_format($assignment->report->latitude, 6) }}, {{ number_format($assignment->report->longitude, 6) }}</p>
-                        <p class="text-sm text-slate-500">Koordinat laporan masyarakat</p>
-                    </div>
-                    <div class="rounded-xl bg-slate-50 p-3">
-                        <p class="text-xs font-black uppercase text-slate-500">Perangkat</p>
-                        <p id="deviceStatus" class="mt-1 text-sm font-semibold text-slate-600">GPS tetap dikirim selama halaman ini terbuka.</p>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="rounded bg-red-500/20 px-1.5 py-0.5 text-[10px] font-black text-red-400 uppercase tracking-wider">{{ $assignment->report->tracking_code }}</span>
+                            <span id="assignmentStatusText" class="text-xs font-bold text-amber-400 uppercase">{{ \App\Http\Controllers\PublicTrackingController::assignmentLabel($assignment->status) }}</span>
+                        </div>
+                        <h1 class="text-xs sm:text-sm font-black text-white truncate">{{ $assignment->report->incident_type }}</h1>
                     </div>
                 </div>
-                <p class="mt-3 text-sm font-semibold text-slate-600">{{ $assignment->report->description }}</p>
-            </details>
-        @else
-            <div class="grid gap-4 pb-24 md:grid-cols-3">
-                <a href="{{ $reporterPhone }}" class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:border-red-300">
-                    <p class="text-xs font-black uppercase text-slate-500">Pelapor</p>
-                    <p class="mt-1 font-black">{{ $assignment->report->reporter_name }}</p>
-                    <p class="text-sm text-slate-500">{{ $assignment->report->reporter_phone }}</p>
-                </a>
-                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <p class="text-xs font-black uppercase text-slate-500">Lokasi kejadian</p>
-                    <p class="mt-1 font-black">{{ number_format($assignment->report->latitude, 6) }}, {{ number_format($assignment->report->longitude, 6) }}</p>
-                    <p class="text-sm text-slate-500">Koordinat laporan masyarakat</p>
-                </div>
-                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <p class="text-xs font-black uppercase text-slate-500">Perangkat</p>
-                    <p id="deviceStatus" class="mt-1 text-sm font-semibold text-slate-600">GPS tetap dikirim selama halaman ini terbuka.</p>
+                
+                <div class="flex items-center gap-2 shrink-0">
+                    <span id="gpsStatus" class="rounded-full bg-emerald-500/20 border border-emerald-500/40 px-2.5 py-1 text-[10px] font-black text-emerald-400 truncate max-w-[120px]">Mengaktifkan...</span>
                 </div>
             </div>
-        @endif
-    </section>
+        </header>
+
+        {{-- LAYER 2.2: Tactical Turn-by-Turn Navigation HUD (Google Maps / Waze Style) --}}
+        <div id="navigationHud" class="absolute bottom-[84px] left-4 right-4 z-20 max-w-md mx-auto hidden pointer-events-auto transition-all duration-300">
+            <div class="rounded-2xl bg-[#1e222b]/95 backdrop-blur-md border border-orange-500/50 p-3 shadow-2xl flex items-center justify-between gap-3 text-white">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div id="navManeuverIcon" class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white font-black text-xl shadow-lg shadow-orange-500/30">
+                        ⬆️
+                    </div>
+                    <div class="min-w-0">
+                        <div id="navDistanceText" class="text-base font-black text-orange-400 leading-tight">Lurus terus</div>
+                        <div id="navInstructionText" class="text-xs font-medium text-slate-200 truncate">Menuju lokasi kejadian</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button id="voiceToggleBtn" type="button" class="grid h-9 w-9 place-items-center rounded-lg bg-[#242832] hover:bg-orange-500/20 text-orange-400 border border-[#333846] transition-all text-sm" title="Aktifkan/Matikan Suara Navigator">
+                        🔊
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {{-- LAYER 2.5: Tactical Map Buttons (Right Floating) --}}
+        <div class="absolute right-4 top-20 z-20 flex flex-col gap-2 pointer-events-auto">
+            <button id="focusMeButton" type="button" class="grid h-10 w-10 place-items-center rounded-xl bg-[#181a20]/90 backdrop-blur-md border border-[#333846] text-white hover:bg-orange-500/20 hover:text-orange-400 shadow-lg transition-all" title="Fokus ke posisi saya">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            </button>
+            <button id="fitRouteButton" type="button" class="grid h-10 w-10 place-items-center rounded-xl bg-[#181a20]/90 backdrop-blur-md border border-[#333846] text-white hover:bg-orange-500/20 hover:text-orange-400 shadow-lg transition-all" title="Lihat rute penuh">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5 4V4l5 4 6-4 5 4v16l-5-4-6 4z"></path></svg>
+            </button>
+        </div>
+
+        {{-- Route Deviation Alert --}}
+        <div id="routeDeviationNotice" class="absolute bottom-[160px] left-4 right-4 z-20 hidden max-w-md mx-auto rounded-xl bg-amber-500/90 backdrop-blur-md border border-amber-400 p-2.5 text-xs font-black text-slate-950 shadow-xl text-center animate-bounce">
+            ⚠️ Keluar jalur dari rute tugas! Memperbarui navigasi...
+        </div>
+
+        {{-- LAYER 3: Interactive Bottom Sheet --}}
+        <div id="bottomSheet" class="expanded-mode absolute bottom-0 left-0 right-0 z-20 max-w-lg mx-auto bg-[#1e222b]/95 backdrop-blur-xl border-t border-x border-[#333846] rounded-t-3xl p-5 sm:p-6 max-h-[82vh] overflow-y-auto flex flex-col gap-4">
+            
+            {{-- Handle Bar --}}
+            <div id="sheetHandle" class="w-14 h-1.5 bg-[#4b5265] hover:bg-orange-500 rounded-full mx-auto -mt-2 mb-1 cursor-pointer transition-colors" title="Klik untuk buka / tutup panel"></div>
+
+            {{-- PEEK HEADER --}}
+            <div class="flex items-center justify-between gap-3 pb-3 border-b border-[#333846] cursor-pointer" id="peekHeader">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <span class="rounded-xl bg-amber-500/20 border border-amber-500/40 px-3 py-1 text-xs font-black text-amber-300 uppercase shrink-0">ETA</span>
+                    <span id="durationText" class="text-sm font-black text-white">{{ $assignment->duration_seconds ? round($assignment->duration_seconds / 60) . ' menit' : '-' }}</span>
+                    <span class="text-slate-500 font-bold">•</span>
+                    <span id="distanceText" class="text-xs font-bold text-slate-300 truncate">{{ $assignment->distance_meters ? number_format($assignment->distance_meters / 1000, 2) . ' km' : '-' }}</span>
+                </div>
+                <button type="button" id="toggleSheetBtn" class="text-xs font-bold text-orange-400 hover:text-orange-300 px-2.5 py-1 rounded-lg bg-[#242832] border border-[#333846] shrink-0">
+                    <span id="toggleSheetIcon">▼ Ringkas</span>
+                </button>
+            </div>
+
+            {{-- EXPANDABLE CONTENT --}}
+            <div id="sheetContent" class="space-y-4">
+                
+                {{-- TACTICAL ACTION BUTTONS (MANDATORY FOR MISSION) --}}
+                @unless($assignmentClosed)
+                <div class="p-3 rounded-2xl bg-[#242832] border border-[#333846] shadow-inner space-y-2">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-400 mb-1">
+                        <span>Tindakan Lapangan:</span>
+                        <span id="mapRouteMeta" class="text-orange-400">{{ $assignment->distance_meters ? number_format($assignment->distance_meters / 1000, 2) . ' km' : '-' }} - {{ $assignment->duration_seconds ? round($assignment->duration_seconds / 60) . ' menit' : '-' }}</span>
+                    </div>
+                    
+                    @if($assignment->status === 'assigned')
+                        <form method="POST" action="{{ route('member.assignments.accept', $assignment) }}" data-stop-assignment-alarm>
+                            @csrf
+                            <button class="w-full rounded-xl bg-gradient-to-r from-orange-600 via-amber-600 to-red-600 px-4 py-4 font-black text-white shadow-lg shadow-orange-500/30 hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 text-base">
+                                <svg class="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span>TERIMA TUGAS SEKARANG</span>
+                            </button>
+                        </form>
+                    @elseif($assignment->status === 'accepted')
+                        <form method="POST" action="{{ route('member.assignments.start', $assignment) }}">
+                            @csrf
+                            <button class="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-4 font-black text-white shadow-lg shadow-blue-500/30 hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 text-base">
+                                <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                <span>MULAI JALAN (OTW KE LOKASI)</span>
+                            </button>
+                        </form>
+                    @elseif($assignment->status === 'on_the_way')
+                        <form method="POST" action="{{ route('member.assignments.arrive', $assignment) }}">
+                            @csrf
+                            <button class="w-full rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-4 font-black text-white shadow-lg shadow-amber-500/30 hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 text-base">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                <span>SAYA SUDAH TIBA DI LOKASI</span>
+                            </button>
+                        </form>
+                    @elseif($assignment->status === 'arrived')
+                        <form method="POST" action="{{ route('member.assignments.handling', $assignment) }}">
+                            @csrf
+                            <button class="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-4 font-black text-white shadow-lg shadow-purple-500/30 hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 text-base">
+                                <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                <span>MULAI TANGANI KORBAN</span>
+                            </button>
+                        </form>
+                    @elseif($assignment->status === 'handling')
+                        <form method="POST" action="{{ route('member.assignments.complete', $assignment) }}">
+                            @csrf
+                            <button class="w-full rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-4 font-black text-white shadow-lg shadow-emerald-500/30 hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 text-base">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span>SELESAI & TUTUP TUGAS</span>
+                            </button>
+                        </form>
+                    @endif
+
+                    <div class="flex items-center justify-between pt-1">
+                        <button id="wakeLockButton" type="button" class="w-full rounded-xl border border-[#333846] bg-[#181a20] px-3 py-2 text-center text-xs font-black text-slate-300 hover:text-white transition-colors">💡 Layar Tetap Aktif</button>
+                    </div>
+                </div>
+                @endunless
+
+                {{-- INCIDENT & REPORTER DETAILS CARD --}}
+                <div class="rounded-2xl bg-[#242832] border border-[#333846] p-4 space-y-3">
+                    <div class="flex items-center justify-between border-b border-[#333846] pb-2.5">
+                        <span class="text-xs font-black text-orange-400 uppercase tracking-wider">Detail Laporan Masyarakat</span>
+                        <span class="rounded bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-400">{{ $assignment->report->tracking_code }}</span>
+                    </div>
+
+                    <p class="text-sm font-semibold text-slate-300 leading-relaxed">{{ $assignment->report->description }}</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                        <a href="{{ $reporterPhone }}" class="flex items-center gap-3 p-3 rounded-xl bg-[#181a20] border border-[#333846] hover:border-orange-500/50 transition-all group">
+                            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                            </span>
+                            <div class="min-w-0">
+                                <p class="text-[10px] font-bold uppercase text-slate-400">Hubungi Pelapor</p>
+                                <p class="text-xs font-black text-white truncate">{{ $assignment->report->reporter_name }}</p>
+                                <p class="text-[11px] font-semibold text-emerald-400 truncate">{{ $assignment->report->reporter_phone }}</p>
+                            </div>
+                        </a>
+
+                        <div class="flex items-center gap-3 p-3 rounded-xl bg-[#181a20] border border-[#333846]">
+                            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-blue-500/20 text-blue-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            </span>
+                            <div class="min-w-0">
+                                <p class="text-[10px] font-bold uppercase text-slate-400">Koordinat Laporan</p>
+                                <p class="text-xs font-black text-white truncate">{{ number_format($assignment->report->latitude, 5) }}, {{ number_format($assignment->report->longitude, 5) }}</p>
+                                <p class="text-[10px] font-semibold text-slate-500 truncate">Titik darurat warga</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- TELEMETRY & DEVICE STATUS GRID --}}
+                <div class="rounded-2xl bg-[#242832] border border-[#333846] p-4 space-y-3">
+                    <div class="flex items-center justify-between border-b border-[#333846] pb-2">
+                        <span class="text-xs font-black text-slate-300 uppercase tracking-wider">Status Telemetri & Perangkat</span>
+                        <span id="deviceStatus" class="text-[10px] font-bold text-emerald-400 truncate max-w-[180px]">GPS aktif</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
+                        <div class="p-2 rounded-xl bg-[#181a20] border border-[#333846]">
+                            <p class="text-[10px] font-bold uppercase text-slate-400">Akurasi</p>
+                            <p id="accuracyValue" class="text-xs font-black text-amber-400 mt-0.5">-</p>
+                        </div>
+                        <div class="p-2 rounded-xl bg-[#181a20] border border-[#333846]">
+                            <p class="text-[10px] font-bold uppercase text-slate-400">Terkirim</p>
+                            <p id="lastSentValue" class="text-xs font-black text-emerald-400 mt-0.5">-</p>
+                        </div>
+                        <div class="p-2 rounded-xl bg-[#181a20] border border-[#333846]">
+                            <p class="text-[10px] font-bold uppercase text-slate-400">Jaringan</p>
+                            <p id="networkStatus" class="text-xs font-black text-blue-400 mt-0.5 uppercase">-</p>
+                        </div>
+                        <div class="p-2 rounded-xl bg-[#181a20] border border-[#333846]">
+                            <p class="text-[10px] font-bold uppercase text-slate-400">Ditempuh</p>
+                            <p id="trailDistanceValue" class="text-xs font-black text-purple-400 mt-0.5">-</p>
+                        </div>
+                        <div class="p-2 rounded-xl bg-[#181a20] border border-[#333846] col-span-2 sm:col-span-1">
+                            <p class="text-[10px] font-bold uppercase text-slate-400">Mode</p>
+                            <p id="cellStatusValue" class="text-xs font-black text-slate-300 mt-0.5 truncate">Web</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
     @push('scripts')
         @if($navigationMode)
@@ -291,9 +345,12 @@
             let locationSendInFlight = false;
             let lastLocationAttemptAt = 0;
 
+            let currentRouteSteps = @json($assignment->route_steps_json ?? []);
+            let voiceEnabled = true;
+            let lastSpokenStepIndex = -1;
             const initialRoute = @json($assignment->route_geometry_json);
             const targetAccuracyMeters = 50;
-            const maxAcceptedAccuracyMeters = 120;
+            const maxAcceptedAccuracyMeters = 1500;
             const warmupMinSamples = 3;
             const warmupMaxMilliseconds = 12000;
             const autoFollowResumeMilliseconds = 10000;
@@ -319,10 +376,23 @@
             const assignmentStatusText = document.getElementById('assignmentStatusText');
             const mapRouteMeta = document.getElementById('mapRouteMeta');
             const routeDeviationNotice = document.getElementById('routeDeviationNotice');
+            const navigationHud = document.getElementById('navigationHud');
+            const navManeuverIcon = document.getElementById('navManeuverIcon');
+            const navDistanceText = document.getElementById('navDistanceText');
+            const navInstructionText = document.getElementById('navInstructionText');
+            const voiceToggleBtn = document.getElementById('voiceToggleBtn');
 
             function networkType() {
                 if (!navigator.onLine) return 'offline';
+                if (window.TimsarNativeBridge?.networkType) {
+                    const nativeType = window.TimsarNativeBridge.networkType();
+                    if (nativeType) return nativeType;
+                }
                 const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                if (conn?.type && conn.type !== 'unknown' && conn.type !== 'other' && conn.type !== 'none') {
+                    if (conn.type === 'cellular') return conn.effectiveType || 'cellular';
+                    return conn.type;
+                }
                 return conn?.effectiveType || conn?.type || 'unknown';
             }
 
@@ -749,6 +819,90 @@
                 }
             }
 
+            function maneuverIcon(type, modifier) {
+                if (type === 'depart') return '🚀';
+                if (type === 'arrive') return '🎯';
+                if (modifier && modifier.includes('left')) return '↖️';
+                if (modifier && modifier.includes('right')) return '↗️';
+                if (modifier === 'uturn') return '↩️';
+                return '⬆️';
+            }
+
+            function speakInstruction(text) {
+                if (!voiceEnabled || !('speechSynthesis' in window)) return;
+                if (window.speechSynthesis.speaking) return;
+                try {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'id-ID';
+                    utterance.rate = 1.0;
+                    window.speechSynthesis.speak(utterance);
+                } catch (e) {}
+            }
+
+            function updateTurnByTurnNavigation(pos) {
+                if (!navigationHud || !navigationMode) {
+                    if (navigationHud) navigationHud.classList.add('hidden');
+                    return;
+                }
+
+                navigationHud.classList.remove('hidden');
+
+                const activePos = pos || bestWarmupPosition || latestPosition;
+                let stepsToUse = currentRouteSteps;
+                if (!stepsToUse || !stepsToUse.length) {
+                    const targetLat = {{ $assignment->report->latitude }};
+                    const targetLng = {{ $assignment->report->longitude }};
+                    const distToTarget = activePos ? L.latLng(activePos.coords.latitude, activePos.coords.longitude).distanceTo(L.latLng(targetLat, targetLng)) : {{ $assignment->distance_meters ?? 0 }};
+                    stepsToUse = [{
+                        type: 'arrive',
+                        modifier: null,
+                        name: '{{ addslashes($assignment->report->incident_type) }}',
+                        distance: distToTarget,
+                        location: [targetLng, targetLat]
+                    }];
+                }
+
+                let nextStepIndex = -1;
+                let minStepDist = Infinity;
+                const currentLat = activePos ? activePos.coords.latitude : null;
+                const currentLng = activePos ? activePos.coords.longitude : null;
+
+                if (currentLat !== null && currentLng !== null) {
+                    for (let i = 0; i < stepsToUse.length; i++) {
+                        const step = stepsToUse[i];
+                        if (step.location && step.location.length === 2) {
+                            const dist = L.latLng(currentLat, currentLng).distanceTo(L.latLng(step.location[1], step.location[0]));
+                            if (dist < minStepDist && (dist > 15 || i === stepsToUse.length - 1)) {
+                                minStepDist = dist;
+                                nextStepIndex = i;
+                            }
+                        }
+                    }
+                }
+
+                if (nextStepIndex === -1 && stepsToUse.length > 0) {
+                    nextStepIndex = 0;
+                }
+
+                if (nextStepIndex >= 0) {
+                    const step = stepsToUse[nextStepIndex];
+                    if (navManeuverIcon) navManeuverIcon.textContent = maneuverIcon(step.type, step.modifier);
+                    if (navDistanceText) navDistanceText.textContent = minStepDist !== Infinity ? `Dalam ${formatDistance(minStepDist)}` : formatDistance(step.distance);
+                    
+                    let instructionText = step.name && step.name !== 'Jalan Raya' ? `Ke ${step.name}` : `Lurus terus mengikuti rute`;
+                    if (step.modifier && step.modifier.includes('left')) instructionText = `Belok kiri ke ${step.name}`;
+                    if (step.modifier && step.modifier.includes('right')) instructionText = `Belok kanan ke ${step.name}`;
+                    if (step.type === 'arrive') instructionText = `Menuju lokasi kejadian`;
+                    
+                    if (navInstructionText) navInstructionText.textContent = instructionText;
+
+                    if (activePos && nextStepIndex !== lastSpokenStepIndex && minStepDist < 150) {
+                        lastSpokenStepIndex = nextStepIndex;
+                        speakInstruction(`${minStepDist !== Infinity ? 'Dalam ' + Math.round(minStepDist) + ' meter, ' : ''}${instructionText}`);
+                    }
+                }
+            }
+
             function reportedSpeedMps(pos) {
                 return Number.isFinite(pos?.coords?.speed) ? pos.coords.speed : null;
             }
@@ -811,6 +965,7 @@
                 gpsReady = true;
                 updateNavigationHeading(pos);
                 updateMemberMarker(pos);
+                updateTurnByTurnNavigation(pos);
                 if (updateRouteDeviationUi(pos)) {
                     sendLocation();
                 }
@@ -930,9 +1085,8 @@
                             return;
                         }
                         updateGpsUi(`Terkirim ${Math.round(pos.coords.accuracy)} m`, pos);
-                        if (updateRouteDeviationUi(pos)) {
-                            await refreshAssignment();
-                        }
+                        updateRouteDeviationUi(pos);
+                        await refreshAssignment();
                     }
                 } catch (error) {
                     updateGpsUi('Lokasi belum terkirim.', pos);
@@ -973,6 +1127,10 @@
                     durationText.textContent = formatDuration(data.assignment.duration_seconds);
                     mapRouteMeta.textContent = `${formatDistance(data.assignment.distance_meters)} - ${formatDuration(data.assignment.duration_seconds)}`;
                     setRouteGeometry(data.assignment.route_geometry);
+                    if (data.assignment.route_steps) {
+                        currentRouteSteps = data.assignment.route_steps;
+                    }
+                    updateTurnByTurnNavigation(latestPosition);
                 } catch (error) {
                     //
                 }
@@ -1103,6 +1261,7 @@
             });
 
             setRouteGeometry(initialRoute, !navigationMode);
+            updateTurnByTurnNavigation(null);
             mapRouteMeta.textContent = `${distanceText.textContent} - ${durationText.textContent}`;
             setAutoFollow(true);
             startLocationWatch();

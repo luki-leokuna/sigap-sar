@@ -23,11 +23,24 @@ class RoutingService
             $response = Http::timeout(6)->get($url, [
                 'overview' => 'full',
                 'geometries' => 'geojson',
-                'steps' => 'false',
+                'steps' => 'true',
             ]);
 
             if ($response->ok() && ($response->json('routes.0') !== null)) {
                 $route = $response->json('routes.0');
+                $rawSteps = $route['legs'][0]['steps'] ?? [];
+                $formattedSteps = [];
+                foreach ($rawSteps as $step) {
+                    $maneuver = $step['maneuver'] ?? [];
+                    $formattedSteps[] = [
+                        'type' => $maneuver['type'] ?? 'continue',
+                        'modifier' => $maneuver['modifier'] ?? 'straight',
+                        'location' => $maneuver['location'] ?? null,
+                        'name' => !empty($step['name']) ? $step['name'] : 'Jalan Raya',
+                        'distance' => (float) ($step['distance'] ?? 0),
+                        'duration' => (int) ($step['duration'] ?? 0),
+                    ];
+                }
 
                 return [
                     'success' => true,
@@ -35,7 +48,7 @@ class RoutingService
                     'distance_meters' => (float) $route['distance'],
                     'duration_seconds' => (int) $route['duration'],
                     'geometry' => $route['geometry'],
-                    'steps' => [],
+                    'steps' => $formattedSteps,
                 ];
             }
         } catch (Throwable) {

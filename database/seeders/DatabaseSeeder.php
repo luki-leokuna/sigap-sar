@@ -34,11 +34,11 @@ class DatabaseSeeder extends Seeder
             ['Haqi', 'haqi@timsar.com', '081222222202', -8.588900, 116.117210, '4g'],
             ['Ghina', 'ghina@timsar.com', '081222222203', -8.573650, 116.103300, '4g'],
             ['Lidia', 'lidia@timsar.com', '081222222204', -8.607420, 116.085700, 'unknown'],
-            ['Merlin', 'merlin@timsar.com', '081222222205', -8.548500, 116.071900, 'wifi'],
-            ['Luki', 'luki@timsar.com', '081222222206', -8.548500, 116.071900, 'wifi'],
-            ['Tika', 'tika@timsar.com', '081222222207', -8.548500, 116.071900, 'wifi'],
-            ['Dina', 'dina@timsar.com', '081222222208', -8.548500, 116.071900, 'wifi'],
-            ['Desi', 'desi@timsar.com', '081222222209', -8.548500, 116.071900, 'wifi'],
+            ['Merlin', 'merlin@timsar.com', '081222222205', -8.560000, 116.085000, 'wifi'],
+            ['Luki', 'luki@timsar.com', '081222222206', -8.575000, 116.110000, 'wifi'],
+            ['Tika', 'tika@timsar.com', '081222222207', -8.590000, 116.090000, 'wifi'],
+            ['Dina', 'dina@timsar.com', '081222222208', -8.600000, 116.120000, 'wifi'],
+            ['Desi', 'desi@timsar.com', '081222222209', -8.565000, 116.075000, 'wifi'],
         ];
 
         $createdMembers = collect($members)->map(function (array $data): User {
@@ -59,7 +59,7 @@ class DatabaseSeeder extends Seeder
                 [
                     'latitude' => $lat,
                     'longitude' => $lng,
-                    'accuracy' => 12,
+                    'accuracy' => 500,
                     'speed' => 0,
                     'network_type' => $network,
                     'is_online' => true,

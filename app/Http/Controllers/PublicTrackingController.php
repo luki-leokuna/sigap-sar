@@ -47,6 +47,7 @@ class PublicTrackingController extends Controller
                 'distance_meters' => $assignment->distance_meters,
                 'duration_seconds' => $assignment->duration_seconds,
                 'route_geometry' => $assignment->route_geometry_json,
+                'route_steps' => $assignment->route_steps_json,
             ] : null,
             'member' => $member ? [
                 'id' => $member->id,
