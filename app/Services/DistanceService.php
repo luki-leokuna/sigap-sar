@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
 
 class DistanceService
 {
-    private const ONLINE_WINDOW_SECONDS = 90;
+    private const ONLINE_WINDOW_SECONDS = 3600; // 1 jam untuk kestabilan simulasi lapangan
 
     public function haversineMeters(float $lat1, float $lon1, float $lat2, float $lon2): float
     {
