@@ -30,7 +30,7 @@ import io.flutter.plugin.common.MethodChannel
 import kotlin.math.round
 
 class MainActivity : FlutterActivity(), SensorEventListener {
-    private val cellInfoChannel = "id.my.merliin.timsar_member/cell_info"
+    private val cellInfoChannel = "id.my.mobilecomputing.timsar_member/cell_info"
     private lateinit var sensorManager: SensorManager
     private var rotationVectorSensor: Sensor? = null
     @Volatile private var compassHeading: Double? = null

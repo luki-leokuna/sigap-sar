@@ -7,7 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 
-const _timsarOrigin = 'https://slimy-monkeys-peel.loca.lt';
+const _timsarOrigin = 'https://sigap-sar-production.up.railway.appt';
 const _cellChannel = MethodChannel('id.my.mobilecomputing.timsar_member/cell_info');
 
 void main() {
