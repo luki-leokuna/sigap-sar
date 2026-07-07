@@ -12,9 +12,10 @@
             #bottomSheet {
                 transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
                 box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+                padding-bottom: max(2rem, env(safe-area-inset-bottom));
             }
             #bottomSheet.peek-mode {
-                transform: translateY(calc(100% - 76px));
+                transform: translateY(calc(100% - 120px));
             }
             #bottomSheet.expanded-mode {
                 transform: translateY(0);
@@ -55,6 +56,26 @@
                 if (peekHeader) peekHeader.addEventListener('click', (e) => {
                     if (!e.target.closest('button')) toggleSheet();
                 });
+
+                // Support Touch Swipe Up/Down Gesture for mobile phones
+                let touchStartY = 0;
+                let touchEndY = 0;
+                const touchArea = document.getElementById('peekHeader') || handle;
+                if (touchArea) {
+                    touchArea.addEventListener('touchstart', (e) => {
+                        touchStartY = e.changedTouches[0].screenY;
+                    }, { passive: true });
+                    touchArea.addEventListener('touchend', (e) => {
+                        touchEndY = e.changedTouches[0].screenY;
+                        const diffY = touchStartY - touchEndY;
+                        const isExpanded = sheet.classList.contains('expanded-mode');
+                        if (diffY > 35 && !isExpanded) {
+                            toggleSheet();
+                        } else if (diffY < -35 && isExpanded) {
+                            toggleSheet();
+                        }
+                    }, { passive: true });
+                }
             });
         </script>
     @endpush
