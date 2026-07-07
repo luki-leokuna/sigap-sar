@@ -316,7 +316,7 @@
                     <span class="text-slate-300 font-bold">SIGAP-SAR Dispatch</span>
                     <span>&bull;</span>
                 </div>
-                <div>&copy; {{ date('Y') }} Basarnas & Operation Network. Siaga 24 Jam.</div>
+                <div>&copy; {{ date('Y') }} SIGAP-SAR & Operation Network. Siaga 24 Jam.</div>
             </div>
         </footer>
 
